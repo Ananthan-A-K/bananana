@@ -20,7 +20,27 @@ function saveMockComplaints(complaints) {
 }
 
 function getMockUsers() {
-// ... existing getMockUsers ...
+  const stored = localStorage.getItem(MOCK_USERS_KEY);
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  const defaultUsers = [
+    {
+      id: 'usr_1',
+      name: 'Demo Student',
+      email: 'student@campus.edu',
+      password: 'password123',
+      role: 'student',
+    },
+    {
+      id: 'usr_2',
+      name: 'Demo Admin',
+      email: 'admin@campus.edu',
+      password: 'password123',
+      role: 'admin',
+    },
+  ];
+  localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(defaultUsers));
   return defaultUsers;
 }
 
