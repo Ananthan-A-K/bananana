@@ -9,6 +9,7 @@ const navigation = [
   { name: 'All Complaints', href: '/admin/complaints', icon: InboxIcon, roles: ['admin'] },
   { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon, roles: ['admin'] },
   { name: 'Users', href: '/admin/users', icon: UserIcon, roles: ['admin'] },
+  { name: 'Component Test', href: '/admin/test-components', icon: ShieldCheckIcon, roles: ['admin'] },
   { name: 'Settings', href: '/settings', icon: CogIcon, roles: ['student', 'admin'] },
 ];
 

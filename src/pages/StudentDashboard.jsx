@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/useAuth.js';
 import StatCard from '../components/StatCard.jsx';
 import { DocumentTextIcon, ClockIcon, CheckCircleIcon } from '../components/Icons.jsx';
@@ -77,12 +78,12 @@ function StudentDashboard() {
           ))}
         </div>
         <div className="px-6 py-4 border-t border-slate-200">
-          <a
-            href="/student/complaints"
+          <Link
+            to="/student/complaints"
             className="text-sm font-medium text-blue-700 hover:text-blue-900"
           >
             View all complaints →
-          </a>
+          </Link>
         </div>
       </div>
     </div>
