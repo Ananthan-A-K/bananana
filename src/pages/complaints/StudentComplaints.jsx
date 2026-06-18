@@ -3,24 +3,9 @@ import api from '../../services/api.js';
 import ComplaintCard from '../../components/complaints/ComplaintCard';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
+import { SearchBox } from '../../components/admin';
 
-const CATEGORIES = [
-  { label: 'All Categories', value: 'all' },
-  { label: 'Classroom', value: 'Classroom' },
-  { label: 'Laboratory', value: 'Laboratory' },
-  { label: 'Hostel', value: 'Hostel' },
-  { label: 'Library', value: 'Library' },
-  { label: 'Internet/Wi-Fi', value: 'Internet/Wi-Fi' },
-  { label: 'Electrical', value: 'Electrical' },
-  { label: 'Water Supply', value: 'Water Supply' },
-  { label: 'Cleanliness', value: 'Cleanliness' },
-  { label: 'IT Infrastructure', value: 'IT Infrastructure' },
-  { label: 'Facilities', value: 'Facilities' },
-  { label: 'Food Services', value: 'Food Services' },
-  { label: 'Safety', value: 'Safety' },
-  { label: 'Academic', value: 'Academic' },
-  { label: 'Other', value: 'Other' },
-];
+import { CATEGORIES } from '../../data/dummyData.js';
 
 const STATUSES = [
   { label: 'All Status', value: 'all' },
@@ -36,6 +21,7 @@ const StudentComplaints = () => {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
     fetchComplaints();
@@ -66,7 +52,7 @@ const StudentComplaints = () => {
   };
 
   const filteredComplaints = useMemo(() => {
-    return complaints.filter((complaint) => {
+    let result = complaints.filter((complaint) => {
       const matchesSearch = complaint.title.toLowerCase().includes(search.toLowerCase()) ||
                            complaint.id.toLowerCase().includes(search.toLowerCase());
       const matchesCategory = categoryFilter === 'all' || complaint.category === categoryFilter;
@@ -74,7 +60,16 @@ const StudentComplaints = () => {
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [complaints, search, categoryFilter, statusFilter]);
+
+    result.sort((a, b) => {
+      const dateA = new Date(a.submittedAt || 0);
+      const dateB = new Date(b.submittedAt || 0);
+      const isAsc = sortOrder === 'asc' || sortOrder === 'asc_alt';
+      return isAsc ? dateA - dateB : dateB - dateA;
+    });
+
+    return result;
+  }, [complaints, search, categoryFilter, statusFilter, sortOrder]);
 
   if (loading) return (
     <div className="flex items-center justify-center py-20">
@@ -110,31 +105,32 @@ const StudentComplaints = () => {
 
       {/* Filter Toolbar */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase ml-1">Search</label>
-            <Input
-              placeholder="Search by title or ID..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase ml-1">Category</label>
-            <Select
-              options={CATEGORIES}
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-400 uppercase ml-1">Status</label>
-            <Select
-              options={STATUSES}
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <SearchBox
+            placeholder="Search by title or ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Select
+            options={CATEGORIES}
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          />
+          <Select
+            options={STATUSES}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          />
+          <Select
+            options={[
+              { label: 'Newest First', value: 'desc' },
+              { label: 'Oldest First', value: 'asc' },
+              { label: 'Descending order', value: 'desc_alt' },
+              { label: 'Ascending order', value: 'asc_alt' },
+            ]}
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          />
         </div>
       </div>
 

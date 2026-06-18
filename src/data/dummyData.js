@@ -1,6 +1,7 @@
 export const studentComplaints = [
   {
     id: 'CMP-001',
+    studentName: 'John Smith',
     title: 'WiFi not working in Library',
     description: 'Unable to connect to campus WiFi in the main library building',
     category: 'IT Infrastructure',
@@ -12,6 +13,7 @@ export const studentComplaints = [
   },
   {
     id: 'CMP-002',
+    studentName: 'Emily Johnson',
     title: 'Broken chair in Lecture Hall A',
     description: 'Seat number 15 in Lecture Hall A has a broken backrest',
     category: 'Facilities',
@@ -23,6 +25,7 @@ export const studentComplaints = [
   },
   {
     id: 'CMP-003',
+    studentName: 'Michael Brown',
     title: 'Cafeteria food quality',
     description: 'Food served in the main cafeteria has been cold and stale recently',
     category: 'Food Services',
@@ -34,6 +37,7 @@ export const studentComplaints = [
   },
   {
     id: 'CMP-004',
+    studentName: 'Sarah Davis',
     title: 'AC not working in Room 301',
     description: 'Air conditioning unit in Computer Lab 301 is not cooling',
     category: 'Facilities',
@@ -45,6 +49,7 @@ export const studentComplaints = [
   },
   {
     id: 'CMP-005',
+    studentName: 'David Wilson',
     title: 'Missing fire extinguisher',
     description: 'Fire extinguisher missing from corridor near Room 205',
     category: 'Safety',
@@ -56,6 +61,7 @@ export const studentComplaints = [
   },
   {
     id: 'CMP-006',
+    studentName: 'Jessica Lee',
     title: 'Projector not working',
     description: 'Projector in Conference Room B shows distorted image',
     category: 'IT Infrastructure',
@@ -67,6 +73,7 @@ export const studentComplaints = [
   },
   {
     id: 'CMP-007',
+    studentName: 'Kevin Moore',
     title: 'Water leakage in washroom',
     description: 'Water leaking from ceiling in washroom near Auditorium',
     category: 'Facilities',
@@ -78,6 +85,7 @@ export const studentComplaints = [
   },
   {
     id: 'CMP-008',
+    studentName: 'Amanda White',
     title: 'Slow internet in hostel',
     description: 'Internet speed very slow in Boys Hostel Block C',
     category: 'IT Infrastructure',
@@ -93,6 +101,7 @@ export const adminComplaints = [
   ...studentComplaints,
   {
     id: 'CMP-009',
+    studentName: 'Admin User',
     title: 'Elevator not working',
     description: 'Main elevator in Admin Building stuck between floors',
     category: 'Facilities',
@@ -104,6 +113,7 @@ export const adminComplaints = [
   },
   {
     id: 'CMP-010',
+    studentName: 'Robert Taylor',
     title: 'Noise from construction',
     description: 'Construction noise near Exam Hall disturbing students',
     category: 'General',
@@ -115,6 +125,7 @@ export const adminComplaints = [
   },
   {
     id: 'CMP-011',
+    studentName: 'Linda Harris',
     title: 'Printer not working in Library',
     description: 'All printers in library showing paper jam error',
     category: 'IT Infrastructure',
@@ -126,6 +137,7 @@ export const adminComplaints = [
   },
   {
     id: 'CMP-012',
+    studentName: 'Steven Clark',
     title: 'Broken window in Classroom 101',
     description: 'Window pane cracked in Classroom 101',
     category: 'Facilities',
@@ -137,6 +149,7 @@ export const adminComplaints = [
   },
   {
     id: 'CMP-013',
+    studentName: 'Nancy Lewis',
     title: 'Parking lot lighting',
     description: 'Several lights not working in North Parking Lot',
     category: 'Safety',
@@ -148,6 +161,7 @@ export const adminComplaints = [
   },
   {
     id: 'CMP-014',
+    studentName: 'Thomas Hall',
     title: 'Lab equipment damaged',
     description: 'Microscope in Biology Lab damaged during class',
     category: 'Academic',
@@ -159,6 +173,7 @@ export const adminComplaints = [
   },
   {
     id: 'CMP-015',
+    studentName: 'Karen Young',
     title: 'Library book missing',
     description: 'Several reference books reported missing from shelves',
     category: 'Academic',
@@ -170,6 +185,7 @@ export const adminComplaints = [
   },
   {
     id: 'CMP-016',
+    studentName: 'Andrew King',
     title: 'Canteen hygiene issue',
     description: 'Hygiene concerns reported in student canteen kitchen',
     category: 'Food Services',
@@ -196,6 +212,20 @@ export const getAdminStats = () => {
   const resolved = adminComplaints.filter(c => c.status === 'resolved').length;
   return { total, pending, inProgress, resolved };
 };
+
+export const CATEGORIES = [
+  { label: 'IT Infrastructure', value: 'IT Infrastructure' },
+  { label: 'Facilities', value: 'Facilities' },
+  { label: 'Food Services', value: 'Food Services' },
+  { label: 'Safety', value: 'Safety' },
+  { label: 'Academic', value: 'Academic' },
+  { label: 'Hostel', value: 'Hostel' },
+  { label: 'Library', value: 'Library' },
+  { label: 'Electrical', value: 'Electrical' },
+  { label: 'Water Supply', value: 'Water Supply' },
+  { label: 'Cleanliness', value: 'Cleanliness' },
+  { label: 'Other', value: 'Other' },
+];
 
 export const statusColors = {
   pending: 'bg-yellow-100 text-yellow-800',

@@ -1,6 +1,7 @@
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/useAuth.js';
 import StatCard from '../components/StatCard.jsx';
-import { DocumentTextIcon, ClockIcon, ExclamationCircleIcon, CheckCircleIcon, UsersIcon, ChartBarIcon } from '../components/Icons.jsx';
+import { DocumentTextIcon, ClockIcon, ExclamationCircleIcon, CheckCircleIcon, UsersIcon, ChartBarIcon, InboxIcon, CogIcon } from '../components/Icons.jsx';
 import { getAdminStats, adminComplaints, statusColors, priorityColors } from '../data/dummyData.js';
 
 function AdminDashboard() {
@@ -86,12 +87,12 @@ function AdminDashboard() {
             ))}
           </div>
           <div className="px-6 py-4 border-t border-slate-200">
-            <a
-              href="/admin/complaints"
+            <Link
+              to="/admin/complaints"
               className="text-sm font-medium text-blue-700 hover:text-blue-900"
             >
               View all complaints →
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -100,8 +101,8 @@ function AdminDashboard() {
             <h2 className="text-lg font-semibold text-slate-950">Quick Actions</h2>
           </div>
           <div className="p-6 space-y-4">
-            <a
-              href="/admin/complaints"
+            <Link
+              to="/admin/complaints"
               className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
@@ -111,9 +112,9 @@ function AdminDashboard() {
                 <p className="font-medium text-slate-950">Manage Complaints</p>
                 <p className="text-sm text-slate-500">Review, assign, and update complaints</p>
               </div>
-            </a>
-            <a
-              href="/admin/analytics"
+            </Link>
+            <Link
+              to="/admin/analytics"
               className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-700">
@@ -123,9 +124,9 @@ function AdminDashboard() {
                 <p className="font-medium text-slate-950">View Analytics</p>
                 <p className="text-sm text-slate-500">Complaint trends and statistics</p>
               </div>
-            </a>
-            <a
-              href="/admin/users"
+            </Link>
+            <Link
+              to="/admin/users"
               className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-700">
@@ -135,9 +136,9 @@ function AdminDashboard() {
                 <p className="font-medium text-slate-950">Manage Users</p>
                 <p className="text-sm text-slate-500">View and manage student accounts</p>
               </div>
-            </a>
-            <a
-              href="/admin/settings"
+            </Link>
+            <Link
+              to="/settings"
               className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-700">
@@ -147,7 +148,7 @@ function AdminDashboard() {
                 <p className="font-medium text-slate-950">System Settings</p>
                 <p className="text-sm text-slate-500">Configure system preferences</p>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -1,13 +1,24 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import api from '../../services/api.js';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { priorityColors } from '../../data/dummyData.js';
+import Select from '../../components/ui/Select';
+import { 
+  AdminTable, 
+  FilterBar, 
+  SearchBox, 
+  StatusDropdown 
+} from '../../components/admin';
+import { CATEGORIES } from '../../data/dummyData.js';
+
+import { Link } from 'react-router-dom';
 
 const AdminComplaints = () => {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
 
   useEffect(() => {
     const fetchComplaints = async () => {
@@ -24,103 +35,108 @@ const AdminComplaints = () => {
     fetchComplaints();
   }, []);
 
-  const filteredComplaints = useMemo(() => {
-    return complaints.filter((c) => {
+  const filteredAndSortedComplaints = useMemo(() => {
+    let result = complaints.filter((c) => {
+      const searchLower = search.toLowerCase();
+      const matchesSearch = 
+        (c.title || '').toLowerCase().includes(searchLower) ||
+        (c.studentName || '').toLowerCase().includes(searchLower) ||
+        (c.id || '').toLowerCase().includes(searchLower);
       const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
       const matchesCategory = categoryFilter === 'all' || c.category === categoryFilter;
-      return matchesStatus && matchesCategory;
+      return matchesSearch && matchesStatus && matchesCategory;
     });
-  }, [complaints, statusFilter, categoryFilter]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700"></div>
-    </div>
-  );
+    result.sort((a, b) => {
+      const dateA = new Date(a.submittedAt || 0);
+      const dateB = new Date(b.submittedAt || 0);
+      const isAsc = sortOrder === 'asc' || sortOrder === 'asc_alt';
+      return isAsc ? dateA - dateB : dateB - dateA;
+    });
+
+    return result;
+  }, [complaints, search, statusFilter, categoryFilter, sortOrder]);
+
+  const columns = [
+    { header: 'Student Name', accessor: 'studentName' },
+    { header: 'Complaint Title', accessor: 'title' },
+    { header: 'Category', accessor: 'category' },
+    { 
+      header: 'Date', 
+      cell: (row) => {
+        const date = new Date(row.submittedAt);
+        if (isNaN(date.getTime())) return 'Invalid Date';
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+    },
+    { 
+      header: 'Status', 
+      cell: (row) => <StatusBadge status={row.status} /> 
+    },
+    {
+      header: 'Actions',
+      cell: (row) => (
+        <Link 
+          to={`/admin/complaints/${row.id}/status`}
+          className="text-blue-700 hover:text-blue-900 font-medium text-sm transition-colors hover:underline"
+        >
+          Update Status
+        </Link>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-950">All Complaints</h1>
-        <p className="mt-1 text-slate-600">Manage and track all campus complaints</p>
+        <h1 className="text-3xl font-bold text-slate-950">Admin Complaint List</h1>
+        <p className="mt-1 text-slate-600">Review and manage all submitted campus complaints.</p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="border-b border-slate-200 px-6 py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h2 className="text-lg font-semibold text-slate-950">Complaints List</h2>
-            <div className="flex items-center gap-2">
-              <select 
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-950 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="all">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-              </select>
-              <select 
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-950 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="all">All Categories</option>
-                <option value="IT Infrastructure">IT Infrastructure</option>
-                <option value="Facilities">Facilities</option>
-                <option value="Food Services">Food Services</option>
-                <option value="Safety">Safety</option>
-                <option value="Academic">Academic</option>
-                <option value="General">General</option>
-              </select>
-            </div>
+      <FilterBar>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center w-full">
+          <div className="md:col-span-1">
+            <SearchBox 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+              placeholder="Search student or title..."
+            />
           </div>
+          <Select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            options={[{ label: 'All Categories', value: 'all' }, ...CATEGORIES]}
+            className="w-full"
+          />
+          <StatusDropdown 
+            value={statusFilter} 
+            onChange={(e) => setStatusFilter(e.target.value)} 
+            className="w-full"
+          />
+          <Select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            options={[
+              { label: 'Newest First', value: 'desc' },
+              { label: 'Oldest First', value: 'asc' },
+              { label: 'Descending order', value: 'desc_alt' },
+              { label: 'Ascending order', value: 'asc_alt' },
+            ]}
+            className="w-full"
+          />
         </div>
+      </FilterBar>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-slate-50 text-left">
-              <tr>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Title</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Student</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Priority</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Assigned</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider">Submitted</th>
-                <th className="px-6 py-3 text-xs font-medium text-slate-500 uppercase tracking-wider text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-200">
-              {filteredComplaints.map((complaint) => (
-                <tr key={complaint.id} className="hover:bg-slate-50 transition-colors text-sm">
-                  <td className="px-6 py-4 font-mono text-slate-500">{complaint.id}</td>
-                  <td className="px-6 py-4 font-medium text-slate-950">{complaint.title}</td>
-                  <td className="px-6 py-4 text-slate-600">Student User</td>
-                  <td className="px-6 py-4 text-slate-600">{complaint.category}</td>
-                  <td className="px-6 py-4">
-                    <StatusBadge status={complaint.status} />
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${priorityColors[complaint.priority] || 'bg-slate-100'}`}>
-                      {complaint.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-slate-600">{complaint.assignedTo || 'Unassigned'}</td>
-                  <td className="px-6 py-4 text-slate-600">{new Date(complaint.submittedAt).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <button className="text-blue-600 hover:text-blue-800 font-medium">View</button>
-                      <button className="text-slate-600 hover:text-slate-800 font-medium">Assign</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AdminTable 
+        columns={columns} 
+        data={filteredAndSortedComplaints} 
+        isLoading={loading}
+        emptyMessage="No complaints found matching your criteria."
+      />
     </div>
   );
 };
