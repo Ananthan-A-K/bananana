@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Input from '../components/Input.jsx';
+import Input from '../components/ui/Input.jsx';
 import { useAuth } from '../context/useAuth.js';
 import api from '../services/api.js';
 
@@ -89,6 +89,9 @@ function Login() {
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+          <div className="rounded-md bg-blue-50 px-3 py-2 text-xs text-blue-800 mb-4">
+            Demo: student@campus.edu / password123 (Student) or admin@campus.edu / password123 (Admin)
+          </div>
           <Input
             error={errors.email}
             id="login-email"
