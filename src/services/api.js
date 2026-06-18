@@ -1,16 +1,20 @@
-import mockApi from './api.mock';
-// import realApi from './api.real'; // Uncomment when DB is ready
+import axios from 'axios';
 
-/**
- * Switching to mockApi temporarily because the MongoDB Atlas connection 
- * is failing due to an IP Whitelist restriction.
- * 
- * To use the real backend:
- * 1. Whitelist your IP in MongoDB Atlas.
- * 2. Ensure the backend server is running (npm run server).
- * 3. Switch the export below to realApi.
- */
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-const api = mockApi;
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('ccms_token');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
 
 export default api;
