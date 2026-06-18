@@ -2,6 +2,13 @@
 
 A full-stack MERN application for managing campus complaints with role-based dashboards for students and administrators.
 
+## 🚀 Current Status: Hybrid Mode
+
+The project is currently in a **Hybrid Development Phase**:
+- **Frontend**: Fully functional with a mock API (`src/services/api.mock.js`) that uses `localStorage` for persistence.
+- **Backend**: Authentication (Login/Register) is implemented with JWT and MongoDB. Complaint management controllers are scaffolded but return 501 (Not Implemented).
+- **Default Config**: The app defaults to the Mock API due to IP whitelist restrictions on the shared MongoDB Atlas instance.
+
 ## Tech Stack
 
 - **Frontend**: React 18, Vite, React Router v6, Tailwind CSS v4
@@ -12,246 +19,92 @@ A full-stack MERN application for managing campus complaints with role-based das
 ## Project Structure
 
 ```
-src/
-├── components/          
-│   ├── ui/              # Base Reusable UI Components
-│   │   ├── Input.jsx    # Styled text input with error support
-│   │   ├── Select.jsx   # Customizable dropdown component
-│   │   ├── TextArea.jsx # Multi-line text area component
-│   │   └── StatusBadge.jsx # Context-aware status indicator
-│   ├── complaints/      # Complaint-specific components
-│   │   ├── ComplaintForm.jsx # Unified form for submission/edit
-│   │   └── ComplaintCard.jsx # Grid card for complaint listings
-│   ├── Icons.jsx        # SVG icon components
-│   ├── Navbar.jsx       # Top navigation bar
-│   ├── ProtectedRoute.jsx # Route guard for auth/roles
-│   ├── Sidebar.jsx      # Collapsible side navigation
-│   └── StatCard.jsx     # Reusable metric card
-├── context/             # React Context providers
-│   ├── AuthContext.jsx  # Auth state + localStorage persistence
-│   ├── auth-context.js  # Context definition
-│   └── useAuth.js       # Custom hook for auth
-├── data/
-│   └── dummyData.js     # Mock complaints + stats helpers
-├── layouts/
-│   └── MainLayout.jsx   # App shell with sidebar + navbar
-├── pages/               # Route components
-│   ├── complaints/      # Complaint module pages
-│   │   ├── AdminComplaints.jsx   # Admin management view
-│   │   ├── StudentComplaints.jsx # Student "My Complaints" view
-│   │   └── SubmitComplaint.jsx  # New complaint submission page
-│   ├── AdminAnalytics.jsx    
-│   ├── AdminDashboard.jsx    
-│   ├── AdminUsers.jsx        
-│   ├── Home.jsx              
-│   ├── Login.jsx             
-│   ├── Register.jsx          
-│   ├── Settings.jsx          
-│   ├── StudentDashboard.jsx  
-│   └── NotFound.jsx
-├── routes/
-│   └── AppRoutes.jsx     # Route definitions with protection
-├── services/
-│   └── api.js           # Mock API (localStorage)
-├── styles.css           # Global styles + Tailwind imports
-├── App.jsx              # Root component
-└── main.jsx             # Entry point
+bananana/
+├── server/              # Express Backend
+│   ├── config/          # DB connection
+│   ├── controllers/     # Route logic (Auth: Done, Complaints: WIP)
+│   ├── middleware/      # Auth & Error handlers
+│   ├── models/          # Mongoose Schemas (User, Complaint)
+│   └── routes/          # API Route definitions
+├── src/                 # React Frontend
+│   ├── components/      
+│   │   ├── ui/          # Base Reusable UI Components
+│   │   ├── admin/       # Specialized Admin Components (Tables, Filters)
+│   │   └── complaints/  # Complaint-specific logic
+│   ├── context/         # AuthContext & Session management
+│   ├── pages/           # Routed Page Components
+│   ├── services/        # API Layer (Switches between Real/Mock)
+│   └── data/            # Static constants and helper data
 ```
 
 ## Recent Progress (June 2026)
 
-- **Modular UI Reorganization**: Established a `src/components/ui` pattern for foundational components (Input, Select, TextArea, StatusBadge) to ensure design consistency.
-- **Enhanced Complaint Module**: 
-  - Integrated a new `ComplaintForm` that strictly follows the 9-category schema (Classroom, Laboratory, etc.).
-  - Implemented a searchable and filterable "My Complaints" page for students.
-  - Added **Conditional Actions**: Students can now Edit or Delete complaints, but only while they are in **Pending** status.
-  - Refined **Status Visuals**: Standardized colors (Pending: Yellow/Amber, In Progress: Blue, Resolved: Green/Emerald).
-  - Implemented **ComplaintCard** for modular display across lists and grids.
+- **Admin Suite Implementation**: Launched `AdminComplaints` page featuring:
+  - **Modular Admin Components**: `AdminTable`, `FilterBar`, `SearchBox`, and `StatusDropdown`.
+  - **Enhanced Filtering**: Real-time search, category filtering, and status tracking.
+  - **Sorting**: Multi-directional sorting by submission date.
+- **Backend Foundation**: Established full JWT Authentication flow and Mongoose models for Users and Complaints.
+- **UI Standardization**: Completed the `src/components/ui` library for consistent forms and layout.
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- MongoDB (local or Atlas) - **optional for frontend development**
+- MongoDB (local or Atlas) - Required for backend auth features.
 
 ### Installation
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 npm install
 
-# Copy environment template
+# 2. Setup Environment
 cp .env.example .env
 
-# Edit .env with your MongoDB URI (required for backend)
-# MONGODB_URI=mongodb://localhost:27017/ccms
-# JWT_SECRET=your-secret-key
-# VITE_API_URL=http://localhost:5000/api
+# 3. Configure .env
+# MONGODB_URI=your_mongodb_uri
+# JWT_SECRET=your_secret_key
+# CLIENT_URL=http://localhost:5173
 ```
 
 ### Running the Application
 
-**Frontend Only (No Backend Required - Uses Mock API)**
-```bash
-npm run client
-# Runs on http://localhost:5173 (or next available port)
-```
+| Mode | Command | Description |
+|------|---------|-------------|
+| **Mock Only** | `npm run client` | Frontend only (runs on :5173, uses LocalStorage) |
+| **Full Stack**| `npm run dev` | Runs Client + Server concurrently |
+| **Server Only**| `npm run server` | Runs Express server with Nodemon |
 
-**Full Stack (Requires MongoDB)**
-```bash
-# Terminal 1: Start backend
-npm run server
+## 🛠 Developer Guide: Switching to Real Backend
 
-# Terminal 2: Start frontend
-npm run client
+To transition from the Mock API to the live Express backend:
 
-# Or both together (will fail if MongoDB unavailable)
-npm run dev
-```
-
-**Build for Production**
-```bash
-npm run build
-# Output in dist/
-```
+1.  **Whitelist your IP**: Ensure your current IP is whitelisted in your MongoDB Atlas cluster.
+2.  **Toggle the Service**: Open `src/services/api.js` and switch the export:
+    ```javascript
+    // import mockApi from './api.mock';
+    import realApi from './api.real'; 
+    const api = realApi;
+    export default api;
+    ```
+3.  **Implement Controllers**: Fill in the logic in `server/controllers/complaintController.js`.
 
 ## Demo Credentials (Mock API)
-
-The mock API (`src/services/api.js`) includes pre-seeded accounts:
 
 | Role | Email | Password |
 |------|-------|----------|
 | Student | student@campus.edu | password123 |
 | Admin | admin@campus.edu | password123 |
 
-You can also register new accounts via `/register`.
+## TODO / Roadmap
 
-## Features Implemented
-
-### Student Dashboard & Management
-- **Stat Cards**: Total Complaints, Pending, Resolved overview.
-- **My Complaints Page**:
-  - **Grid-based Layout**: Uses modular `ComplaintCard` for better visibility.
-  - **Search**: Real-time filtering by Title or ID.
-  - **Advanced Filters**: Dropdowns for Category and Status.
-  - **Management**: Conditional **Edit** and **Delete** actions for Pending complaints.
-- **Submit Complaint**: Form validation using reusable `Input`, `Select`, and `TextArea` components.
-
-### Admin Dashboard
-- **Stat Cards**: Total, Pending, In Progress, Resolved tracking.
-- **Quick Actions**: Manage Complaints, Analytics, Users, Settings.
-- **All Complaints Table**: Status management and overview.
-- **Analytics**: Visualization of category distribution, priority, and trends.
-- **User Management**: Comprehensive view of campus users and roles.
-
-### Shared UI & Architecture
-- **Reusable UI Library**: Foundational components in `src/components/ui`.
-- **Responsive Sidebar**: Role-based navigation that adapts to mobile devices.
-- **Mobile-friendly**: Fully responsive design using Tailwind CSS.
-
-## Switching to Real Backend
-
-When MongoDB is configured, replace the mock API:
-
-1. **Update `src/services/api.js`** to use axios with your backend:
-   ```javascript
-   import axios from 'axios';
-   
-   const api = axios.create({
-     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-   });
-   
-   // Add interceptors for auth token
-   export default api;
-   ```
-
-2. **Implement backend endpoints** (see `server/` for existing scaffold):
-   - `POST /api/auth/register` - Create user, return JWT
-   - `POST /api/auth/login` - Validate credentials, return JWT
-   - `GET /api/auth/me` - Get current user from token
-   - `GET /api/complaints` - List complaints (with filters)
-   - `POST /api/complaints` - Create complaint
-   - `PATCH /api/complaints/:id` - Update status/assignment
-   - `GET /api/admin/stats` - Dashboard statistics
-   - `GET /api/admin/users` - User management
-
-3. **Remove mock data** from `src/data/dummyData.js` once real API is connected.
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `MONGODB_URI` | MongoDB connection string | Backend only |
-| `JWT_SECRET` | Secret for signing JWT tokens | Backend only |
-| `PORT` | Server port (default: 5000) | Backend only |
-| `VITE_API_URL` | Backend API base URL | Frontend |
-
-## Scripts Reference
-
-| Command | Description |
-|---------|-------------|
-| `npm run client` | Start Vite dev server (frontend only) |
-| `npm run server` | Start Express with Nodemon |
-| `npm run dev` | Run both client + server concurrently |
-| `npm run build` | Production build to `dist/` |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
-| `npm start` | Start production server |
-
-## Key Implementation Details
-
-### Authentication Flow
-- JWT stored in localStorage (`ccms_token`, `ccms_user`)
-- `AuthProvider` wraps app, restores session on load
-- `ProtectedRoute` guards routes by role (`student`/`admin`)
-- `useAuth()` hook provides `user`, `login()`, `logout()`, `isAuthenticated`
-
-### Role-Based Navigation
-- `Sidebar.jsx` filters nav items by `user.role`
-- Student sees: Dashboard, My Complaints, Submit Complaint
-- Admin sees: Dashboard, All Complaints, Analytics, Users
-- Both see: Settings
-
-### Dummy Data Structure
-```javascript
-// Complaint object
-{
-  id: 'CMP-001',
-  title: 'WiFi not working in Library',
-  description: '...',
-  category: 'IT Infrastructure',
-  status: 'pending' | 'in_progress' | 'resolved',
-  priority: 'low' | 'medium' | 'high',
-  submittedAt: '2025-10-15T10:30:00Z',
-  resolvedAt: '2025-10-18T14:20:00Z' | null,
-  assignedTo: 'IT Support Team' | null
-}
-```
-
-### Styling
-- Tailwind CSS v4 with custom theme
-- Color scheme: Slate (neutral), Blue (primary), Green/Yellow/Red (status)
-- Responsive breakpoints: `sm:`, `lg:`
-- Dark mode ready (add `dark:` classes)
-
-## Contributing
-
-1. Create feature branch: `git checkout -b feature/your-feature`
-2. Make changes, ensure `npm run build` passes
-3. Run `npm run lint` to check code style
-4. Commit with conventional messages: `feat:`, `fix:`, `chore:`
-5. Push and open PR
-
-## Known Issues /   TODO
-
-- [ ] Backend MongoDB connection needs IP whitelist or local MongoDB
-- [ ] Replace mock API with real backend endpoints
-- [ ] Add complaint detail view modal/page
-- [ ] Add file upload for complaint attachments
-- [ ] Implement email notifications
-- [ ] Add pagination for large complaint lists
-- [ ] Unit tests for components
-- [ ] E2E tests with Playwright/Cypress
+- [ ] **Phase 1 (Backend)**: Implement `complaintController.js` (CRUD operations).
+- [ ] **Phase 2 (Integration)**: Connect Frontend to Real API and verify auth flow.
+- [ ] **Phase 3 (Admin)**: Implement status update functionality in the backend.
+- [ ] **Phase 4 (Features)**:
+  - [ ] Add file upload for complaint attachments.
+  - [ ] Implement email notifications for status changes.
+  - [ ] Add dashboard analytics charts (using Chart.js or Recharts).
 
 ## License
 
