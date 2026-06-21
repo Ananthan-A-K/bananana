@@ -13,33 +13,33 @@ function Settings() {
 
   if (!user) {
     return (
-      <div className="text-center py-12">
-        <p className="text-slate-600">Please log in to access settings</p>
+      <div className="text-center py-12 bg-pitch-black">
+        <p className="text-warm-cream/60 text-sm uppercase tracking-wider">Please log in to access settings</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-3xl space-y-8 bg-pitch-black">
       <div>
-        <h1 className="text-3xl font-bold text-slate-950">Settings</h1>
-        <p className="mt-1 text-slate-600">Manage your account settings and preferences</p>
+        <h1 className="text-3xl font-black tracking-tight text-warm-cream uppercase font-oldschoolgrotesk">Settings</h1>
+        <p className="mt-1.5 text-xs text-warm-cream/60 tracking-wide font-light">Manage your account settings and preferences</p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="border-b border-slate-200 overflow-x-auto">
+      <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 shadow-none overflow-hidden relative">
+        <div className="border-b border-charcoal-900 overflow-x-auto bg-charcoal-900/20">
           <nav className="flex gap-4 px-6" aria-label="Settings tabs">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 py-4 px-1 border-b-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
                   activeTab === tab.id
-                    ? 'border-blue-700 text-blue-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                    ? 'border-acid-lime text-warm-cream'
+                    : 'border-transparent text-warm-cream/60 hover:text-warm-cream'
                 }`}
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
                 </svg>
                 {tab.label}
@@ -50,41 +50,44 @@ function Settings() {
 
         <div className="p-6">
           {activeTab === 'profile' && (
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
               <div>
-                <h2 className="text-lg font-semibold text-slate-950 mb-4">Profile Information</h2>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-700">Full Name</label>
+                <h2 className="text-xs font-bold tracking-[0.2em] text-warm-cream uppercase mb-6 font-oldschoolgrotesk">Profile Information</h2>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="name" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Full Name</label>
                     <input
                       type="text"
                       id="name"
                       defaultValue={user.name}
-                      className="mt-1 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-950 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
                     />
                   </div>
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-slate-700">Email</label>
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="email" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Email</label>
                     <input
                       type="email"
                       id="email"
                       defaultValue={user.email}
-                      className="mt-1 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-950 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
                     />
                   </div>
                 </div>
-                <div className="mt-4">
-                  <label htmlFor="phone" className="block text-sm font-medium text-slate-700">Phone Number</label>
+                <div className="mt-6 flex flex-col gap-2">
+                  <label htmlFor="phone" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Phone Number</label>
                   <input
                     type="tel"
                     id="phone"
                     placeholder="+1 (555) 000-0000"
-                    className="mt-1 block w-full rounded-lg border border-slate-300 px-4 py-2.5 text-slate-950 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
                   />
                 </div>
               </div>
-              <div className="pt-4 border-t border-slate-200">
-                <button type="submit" className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-800">
+              <div className="pt-6 border-t border-charcoal-900">
+                <button 
+                  type="submit" 
+                  className="rounded-full bg-acid-lime hover:bg-lime-400 px-8 py-2.5 text-xs font-black uppercase tracking-widest text-pitch-black transition-all cursor-pointer"
+                >
                   Save Changes
                 </button>
               </div>
@@ -93,7 +96,7 @@ function Settings() {
 
           {activeTab === 'notifications' && (
             <div className="space-y-6">
-              <h2 className="text-lg font-semibold text-slate-950">Notification Preferences</h2>
+              <h2 className="text-xs font-bold tracking-[0.2em] text-warm-cream uppercase mb-4 font-oldschoolgrotesk">Notification Preferences</h2>
               <div className="space-y-4">
                 {[
                   { title: 'Email Notifications', desc: 'Receive email updates for complaint status changes', enabled: true },
@@ -101,14 +104,14 @@ function Settings() {
                   { title: 'Weekly Digest', desc: 'Receive a weekly summary of your complaints', enabled: false },
                   { title: 'Admin Alerts', desc: 'Notifications for admin actions on your complaints', enabled: true },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-lg border border-slate-200">
+                  <div key={i} className="flex items-center justify-between p-5 rounded-[25px] border border-charcoal-900 bg-charcoal-900/30">
                     <div>
-                      <p className="font-medium text-slate-950">{item.title}</p>
-                      <p className="text-sm text-slate-500">{item.desc}</p>
+                      <p className="font-bold text-xs uppercase tracking-wider text-warm-cream">{item.title}</p>
+                      <p className="text-xs text-warm-cream/60 mt-1">{item.desc}</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input type="checkbox" defaultChecked={item.enabled} className="sr-only peer" />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600" />
+                      <div className="w-11 h-6 bg-pitch-black border border-charcoal-900 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-warm-cream after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-warm-cream after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-acid-lime" />
                     </label>
                   </div>
                 ))}
@@ -117,29 +120,38 @@ function Settings() {
           )}
 
           {activeTab === 'preferences' && (
-            <form className="space-y-6">
-              <h2 className="text-lg font-semibold text-slate-950">Display Preferences</h2>
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <h2 className="text-xs font-bold tracking-[0.2em] text-warm-cream uppercase font-oldschoolgrotesk">Display Preferences</h2>
               <div>
-                <label className="block text-sm font-medium text-slate-700">Theme</label>
-                <div className="mt-2 flex gap-4">
+                <label className="block text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase mb-3">Theme</label>
+                <div className="flex gap-6">
                   {['light', 'dark', 'system'].map((theme) => (
-                    <label key={theme} className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="theme" defaultValue="system" defaultChecked={theme === 'system'} className="text-blue-600 focus:ring-blue-500" />
-                      <span className="capitalize text-slate-700">{theme}</span>
+                    <label key={theme} className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-warm-cream/60 hover:text-warm-cream transition-colors">
+                      <input 
+                        type="radio" 
+                        name="theme" 
+                        defaultValue="system" 
+                        defaultChecked={theme === 'system'} 
+                        className="accent-acid-lime" 
+                      />
+                      <span className="capitalize">{theme}</span>
                     </label>
                   ))}
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700">Language</label>
-                <select className="mt-1 block w-full max-w-xs rounded-lg border border-slate-300 px-4 py-2.5 text-slate-950 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <div className="flex flex-col gap-2">
+                <label className="block text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Language</label>
+                <select className="block w-full max-w-xs bg-pitch-black text-warm-cream rounded-full border border-charcoal-900 px-5 py-3 text-sm focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime cursor-pointer appearance-none">
                   <option value="en">English</option>
                   <option value="es">Spanish</option>
                   <option value="fr">French</option>
                 </select>
               </div>
-              <div className="pt-4 border-t border-slate-200">
-                <button type="submit" className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-800">
+              <div className="pt-6 border-t border-charcoal-900">
+                <button 
+                  type="submit" 
+                  className="rounded-full bg-acid-lime hover:bg-lime-400 px-8 py-2.5 text-xs font-black uppercase tracking-widest text-pitch-black transition-all cursor-pointer"
+                >
                   Save Preferences
                 </button>
               </div>

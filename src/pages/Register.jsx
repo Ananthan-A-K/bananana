@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/ui/Input.jsx';
+import Select from '../components/ui/Select.jsx';
 import { useAuth } from '../context/useAuth.js';
 import api from '../services/api.js';
 
@@ -90,12 +91,13 @@ function Register() {
   };
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-6xl items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-6xl items-center justify-center px-4 py-10 bg-pitch-black">
+      <div className="w-full max-w-md rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-sm sm:p-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-950">Create account</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Register as a student or admin for CCMS access.
+          <h1 className="text-2xl font-bold tracking-tight text-warm-cream uppercase">Create account</h1>
+          <p className="mt-1.5 text-xs text-ash tracking-wide font-light">
+            Register as a student or admin for BANANANA access.
           </p>
         </div>
 
@@ -112,7 +114,7 @@ function Register() {
           <Input
             error={errors.email}
             id="register-email"
-            label="Email"
+            label="Email Address"
             name="email"
             onChange={handleChange}
             placeholder="name@campus.edu"
@@ -130,51 +132,38 @@ function Register() {
             value={values.password}
           />
 
-          <div>
-            <label
-              className="block text-sm font-medium text-slate-700"
-              htmlFor="register-role"
-            >
-              Role
-            </label>
-            <select
-              className={`mt-2 w-full rounded-md border bg-white px-3 py-2 text-slate-950 shadow-sm outline-none transition focus:ring-2 ${
-                errors.role
-                  ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
-                  : 'border-slate-300 focus:border-blue-600 focus:ring-blue-100'
-              }`}
-              id="register-role"
-              name="role"
-              onChange={handleChange}
-              value={values.role}
-            >
-              <option value="student">Student</option>
-              <option value="admin">Admin</option>
-            </select>
-            {errors.role ? (
-              <p className="mt-1 text-sm text-red-600">{errors.role}</p>
-            ) : null}
-          </div>
+          <Select
+            error={errors.role}
+            id="register-role"
+            label="Account Role"
+            name="role"
+            onChange={handleChange}
+            options={[
+              { value: 'student', label: 'Student' },
+              { value: 'admin', label: 'Admin' },
+            ]}
+            value={values.role}
+          />
 
           {submitError ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-lg bg-pitch-black border border-ember-orange/40 px-4 py-3 text-xs text-ember-orange font-medium tracking-wide">
               {submitError}
             </p>
           ) : null}
 
           <button
-            className="w-full rounded-md bg-blue-700 px-4 py-2.5 font-medium text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-blue-300"
+            className="w-full rounded-full bg-acid-lime px-4 py-3.5 text-xs font-black tracking-[0.2em] text-pitch-black transition hover:bg-lime-400 disabled:cursor-not-allowed disabled:bg-charcoal-900/60 disabled:text-warm-cream/30 uppercase cursor-pointer"
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? 'Creating account...' : 'Create account'}
+            {isSubmitting ? 'Creating account...' : 'Create account ↗'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
+        <p className="mt-8 text-center text-xs text-ash tracking-wide font-light">
           Already have an account?{' '}
           <Link
-            className="font-medium text-blue-700 hover:text-blue-900"
+            className="font-bold text-acid-lime hover:underline uppercase tracking-[0.15em] text-[10px] ml-1.5"
             to="/login"
           >
             Sign in

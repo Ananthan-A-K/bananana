@@ -228,13 +228,13 @@ export const CATEGORIES = [
 ];
 
 export const statusColors = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  in_progress: 'bg-blue-100 text-blue-800',
-  resolved: 'bg-green-100 text-green-800',
+  pending: 'bg-ember-orange text-pitch-black font-extrabold',
+  in_progress: 'bg-iris-violet text-warm-cream font-extrabold',
+  resolved: 'bg-acid-lime text-pitch-black font-extrabold',
 };
 
 export const priorityColors = {
-  low: 'bg-slate-100 text-slate-800',
-  medium: 'bg-orange-100 text-orange-800',
-  high: 'bg-red-100 text-red-800',
+  low: 'bg-charcoal-900 text-warm-cream/50 border border-charcoal-900',
+  medium: 'bg-schoolbus-yellow text-pitch-black font-extrabold',
+  high: 'bg-ember-orange text-pitch-black font-extrabold',
 };

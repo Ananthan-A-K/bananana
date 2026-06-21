@@ -1,66 +1,77 @@
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth.js';
 import { MenuIcon } from './Icons.jsx';
 
 function Navbar({ onMenuClick }) {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-5 px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="rounded-md p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
-            onClick={onMenuClick}
-            aria-label="Toggle menu"
-            aria-expanded="false"
-          >
-            <MenuIcon className="h-6 w-6" aria-hidden="true" />
-          </button>
-          <Link className="text-xl font-bold text-slate-950" to="/">
-            CCMS
-          </Link>
-        </div>
+    <>
+      {/* Invisible hover trigger zone centered at the top of the viewport */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-3xl h-6 bg-transparent pointer-events-auto peer" />
 
-        <nav
-          className="flex items-center gap-4 text-sm font-medium text-slate-600"
-          aria-label="Primary navigation"
-        >
-          {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-500 hidden sm:block">
-                {user.name}
+      {/* Floating Navbar container */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-3xl pointer-events-none transition-all duration-300 ease-in-out transform -translate-y-24 opacity-0 peer-hover:translate-y-4 peer-hover:opacity-100 hover:translate-y-4 hover:opacity-100 peer-hover:pointer-events-auto hover:pointer-events-auto">
+        <header className="w-full bg-charcoal-900 rounded-full h-16 px-4 flex items-center justify-between border border-charcoal-900/50 shadow-md pointer-events-auto">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="rounded-full p-2 text-warm-cream hover:bg-pitch-black lg:hidden cursor-pointer"
+              onClick={onMenuClick}
+              aria-label="Toggle menu"
+            >
+              <MenuIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
+            <Link className="flex items-center gap-2" to="/">
+              <div className="w-8 h-8 rounded-[8px] bg-ember-orange flex items-center justify-center font-black text-pitch-black text-xs font-oldschoolgrotesk tracking-tighter">
+                B
+              </div>
+              <span className="font-oldschoolgrotesk font-black text-sm tracking-wider text-warm-cream uppercase hidden sm:inline">
+                BANANANA
               </span>
-              <button
-                className="text-blue-700 hover:text-blue-900"
-                type="button"
-                onClick={logout}
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <>
-              <NavLink
-                className={({ isActive }) =>
-                  isActive ? 'text-blue-700' : 'hover:text-slate-950'
-                }
-                to="/login"
-              >
-                Login
-              </NavLink>
-              <Link
-                className="rounded-md bg-blue-700 px-3 py-2 text-white hover:bg-blue-800"
-                to="/register"
-              >
-                Register
-              </Link>
-            </>
-          )}
-        </nav>
+            </Link>
+          </div>
+
+          <nav
+            className="flex items-center gap-4 text-xs font-medium tracking-wider text-warm-cream font-aeonik"
+            aria-label="Primary navigation"
+          >
+            {user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-warm-cream/80 hidden md:block">
+                  {user.name}
+                </span>
+                <button
+                  className="rounded-full border border-acid-lime/40 text-acid-lime hover:bg-acid-lime hover:text-pitch-black px-4 py-1.5 text-xs font-bold transition-all uppercase cursor-pointer"
+                  type="button"
+                  onClick={logout}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                <NavLink
+                  className={({ isActive }) =>
+                    isActive ? 'text-acid-lime' : 'hover:text-acid-lime text-warm-cream/80 transition-colors uppercase text-[11px] font-semibold tracking-widest'
+                  }
+                  to="/login"
+                >
+                  Login
+                </NavLink>
+                <Link
+                  className="rounded-full border border-acid-lime text-acid-lime hover:bg-acid-lime hover:text-pitch-black px-5 py-2 text-[11px] font-bold tracking-widest uppercase transition-all duration-300"
+                  to="/register"
+                >
+                  Register ↗
+                </Link>
+              </div>
+            )}
+          </nav>
+        </header>
       </div>
-    </header>
+    </>
   );
 }
 

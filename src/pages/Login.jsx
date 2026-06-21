@@ -79,23 +79,27 @@ function Login() {
   };
 
   return (
-    <section className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-6xl items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="mx-auto flex min-h-[calc(100vh-73px)] w-full max-w-6xl items-center justify-center px-4 py-10 bg-pitch-black">
+      <div className="w-full max-w-md rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-sm sm:p-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-950">Login</h1>
-          <p className="mt-2 text-sm text-slate-600">
+          <h1 className="text-2xl font-bold tracking-tight text-warm-cream uppercase">Login</h1>
+          <p className="mt-1.5 text-xs text-ash tracking-wide font-light">
             Access your campus complaint dashboard.
           </p>
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-          <div className="rounded-md bg-blue-50 px-3 py-2 text-xs text-blue-800 mb-4">
-            Demo: student@campus.edu / password123 (Student) or admin@campus.edu / password123 (Admin)
+          <div className="rounded-xl bg-pitch-black/60 border border-pitch-black px-4 py-3 text-[11px] text-warm-cream/80 font-light leading-relaxed">
+            <span className="font-bold text-warm-cream uppercase tracking-wider block mb-1">Demo Credentials:</span>
+            Student: <code className="text-acid-lime">student@campus.edu</code> / <code className="text-acid-lime">password123</code><br/>
+            Admin: <code className="text-acid-lime">admin@campus.edu</code> / <code className="text-acid-lime">password123</code>
           </div>
+          
           <Input
             error={errors.email}
             id="login-email"
-            label="Email"
+            label="Email Address"
             name="email"
             onChange={handleChange}
             placeholder="student@campus.edu"
@@ -114,27 +118,27 @@ function Login() {
           />
 
           {submitError ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-lg bg-pitch-black border border-ember-orange/40 px-4 py-3 text-xs text-ember-orange font-medium tracking-wide">
               {submitError}
             </p>
           ) : null}
 
           <button
-            className="w-full rounded-md bg-blue-700 px-4 py-2.5 font-medium text-white transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-blue-300"
+            className="w-full rounded-full bg-acid-lime px-4 py-3.5 text-xs font-black tracking-[0.2em] text-pitch-black transition hover:bg-lime-400 disabled:cursor-not-allowed disabled:bg-charcoal-900/60 disabled:text-warm-cream/30 uppercase cursor-pointer"
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isSubmitting ? 'Signing in...' : 'Sign in ↗'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
-          New to CCMS?{' '}
+        <p className="mt-8 text-center text-xs text-ash tracking-wide font-light">
+          New to BANANANA?{' '}
           <Link
-            className="font-medium text-blue-700 hover:text-blue-900"
+            className="font-bold text-acid-lime hover:underline uppercase tracking-[0.15em] text-[10px] ml-1.5"
             to="/register"
           >
-            Create an account
+            Create account
           </Link>
         </p>
       </div>

@@ -82,19 +82,19 @@ const AdminComplaints = () => {
       cell: (row) => (
         <Link 
           to={`/admin/complaints/${row.id}/status`}
-          className="text-blue-700 hover:text-blue-900 font-medium text-sm transition-colors hover:underline"
+          className="text-[10px] font-black tracking-widest text-acid-lime hover:text-lime-400 uppercase transition-all cursor-pointer"
         >
-          Update Status
+          Update Status ↗
         </Link>
       )
     }
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 bg-pitch-black">
       <div>
-        <h1 className="text-3xl font-bold text-slate-950">Admin Complaint List</h1>
-        <p className="mt-1 text-slate-600">Review and manage all submitted campus complaints.</p>
+        <h1 className="text-3xl font-black tracking-tight text-warm-cream uppercase font-oldschoolgrotesk">Admin Complaint List</h1>
+        <p className="mt-1.5 text-xs text-warm-cream/60 tracking-wide font-light">Review and manage all submitted campus complaints.</p>
       </div>
 
       <FilterBar>

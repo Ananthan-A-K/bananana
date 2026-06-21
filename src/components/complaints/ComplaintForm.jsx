@@ -113,17 +113,17 @@ const ComplaintForm = ({ onSubmit, initialData = {}, submitButtonText = "Submit 
         required
       />
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+      <div className="flex justify-end gap-3 pt-6 border-t border-charcoal-900">
         <button
           type="button"
           onClick={handleReset}
-          className="rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+          className="rounded-full border border-charcoal-900 bg-transparent px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-warm-cream/60 hover:text-warm-cream hover:border-warm-cream/20 transition-all cursor-pointer"
         >
           Reset Form
         </button>
         <button
           type="submit"
-          className="rounded-lg bg-blue-700 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-800 shadow-sm transition-colors"
+          className="rounded-full bg-acid-lime hover:bg-lime-400 px-8 py-2.5 text-xs font-black uppercase tracking-widest text-pitch-black transition-all cursor-pointer"
         >
           {submitButtonText}
         </button>
