@@ -25,7 +25,7 @@ function MainLayout() {
   const contentPadding = isMobile ? '' : sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64';
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-pitch-black text-warm-cream">
       <Navbar onMenuClick={() => setSidebarOpen(true)} />
       <Sidebar
         isOpen={sidebarOpen}
@@ -36,7 +36,7 @@ function MainLayout() {
         isMobile={isMobile}
       />
       <div className={`transition-all duration-300 ${contentPadding}`}>
-        <main className="pt-6">
+        <main className="pt-24 lg:pt-28 px-4 sm:px-6 max-w-6xl mx-auto">
           <Outlet />
         </main>
       </div>

@@ -13,9 +13,9 @@ const Select = ({
   ...props
 }) => {
   return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
+    <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-slate-700">
+        <label htmlFor={id} className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">
           {label}
         </label>
       )}
@@ -24,25 +24,25 @@ const Select = ({
         name={name}
         value={value}
         onChange={onChange}
-        className={`w-full rounded-md border bg-white px-3 py-2 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 ${
+        className={`w-full bg-pitch-black text-warm-cream rounded-full border px-5 py-3 text-sm transition-all focus:outline-none focus:ring-1 appearance-none ${
           error
-            ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
-            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'
+            ? 'border-ember-orange focus:border-ember-orange focus:ring-ember-orange'
+            : 'border-charcoal-900 focus:border-acid-lime focus:ring-acid-lime'
         }`}
         {...props}
       >
         {placeholder && (
-          <option value="" disabled>
+          <option value="" disabled className="bg-pitch-black text-warm-cream/40">
             {placeholder}
           </option>
         )}
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
+          <option key={option.value} value={option.value} className="bg-pitch-black text-warm-cream">
             {option.label}
           </option>
         ))}
       </select>
-      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+      {error && <p className="text-xs text-ember-orange font-medium tracking-wide mt-0.5">{error}</p>}
     </div>
   );
 };

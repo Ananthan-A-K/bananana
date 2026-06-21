@@ -39,51 +39,51 @@ const SubmitComplaint = () => {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 pb-10">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold text-slate-950">Submit New Complaint</h1>
-        <p className="text-slate-600">Report an issue to campus administration. All fields are required.</p>
+    <div className="mx-auto max-w-2xl space-y-8 pb-10 bg-pitch-black">
+      <div className="space-y-1.5">
+        <h1 className="text-3xl font-black tracking-tight text-warm-cream uppercase font-oldschoolgrotesk">Submit New Complaint</h1>
+        <p className="text-xs text-warm-cream/60 tracking-wide font-light">Report an issue to campus administration. All fields are required.</p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-none relative overflow-hidden">
         <ComplaintForm onSubmit={handleSubmit} />
         {loading && (
-          <p className="mt-4 text-sm font-medium text-blue-700">Submitting complaint...</p>
+          <p className="mt-4 text-xs font-black uppercase tracking-wider text-acid-lime animate-pulse">Submitting complaint...</p>
         )}
       </div>
 
       {submissions.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-slate-950">Recent Submissions (Persisted)</h2>
+          <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-warm-cream">Recent Submissions (Persisted)</h2>
           <div className="space-y-4">
             {submissions.map((sub) => (
-              <div key={sub.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+              <div key={sub.id} className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/30 p-5 shadow-none space-y-3 relative overflow-hidden">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold text-slate-900">{sub.title}</h3>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5">{sub.id}</p>
+                    <h3 className="font-semibold text-warm-cream">{sub.title}</h3>
+                    <p className="text-[10px] text-warm-cream/60 font-mono mt-0.5">{sub.id}</p>
                   </div>
                   <StatusBadge status={sub.status} />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
-                    <span className="text-slate-500 block">Category</span>
-                    <span className="text-slate-800 font-medium">{sub.category}</span>
+                    <span className="text-warm-cream/40 block uppercase tracking-wider text-[9px] font-bold">Category</span>
+                    <span className="text-warm-cream font-semibold">{sub.category}</span>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Location</span>
-                    <span className="text-slate-800 font-medium">{sub.location}</span>
+                    <span className="text-warm-cream/40 block uppercase tracking-wider text-[9px] font-bold">Location</span>
+                    <span className="text-warm-cream font-semibold">{sub.location}</span>
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-slate-500 text-sm block">Description</span>
-                  <p className="text-slate-700 text-sm mt-1">{sub.description}</p>
+                  <span className="text-warm-cream/40 block uppercase tracking-wider text-[9px] font-bold">Description</span>
+                  <p className="text-warm-cream/60 text-xs mt-1">{sub.description}</p>
                 </div>
 
-                <div className="pt-2 text-xs text-slate-400 border-t border-slate-50">
-                  Submitted on: {new Date(sub.submittedAt).toLocaleString()}
+                <div className="pt-2 text-[10px] text-warm-cream/40 border-t border-charcoal-900">
+                  Submitted: {new Date(sub.submittedAt).toLocaleString()}
                 </div>
               </div>
             ))}

@@ -9,14 +9,12 @@ function AdminDashboard() {
   const stats = getAdminStats();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-950">Admin Dashboard</h1>
-          <p className="mt-1 text-slate-600">
-            Welcome back, {user?.name || 'Admin'}! Overview of all campus complaints.
-          </p>
-        </div>
+    <div className="space-y-8 bg-pitch-black">
+      <div>
+        <h1 className="text-3xl font-black tracking-tight text-warm-cream uppercase font-oldschoolgrotesk">Admin Dashboard</h1>
+        <p className="mt-1.5 text-xs text-warm-cream/60 tracking-wide font-light">
+          Welcome back, {user?.name || 'Admin'}! Overview of all campus complaints.
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -55,30 +53,30 @@ function AdminDashboard() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-slate-950">Recent Complaints</h2>
+        <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 shadow-none relative overflow-hidden">
+          <div className="border-b border-charcoal-900 px-6 py-5">
+            <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-warm-cream">Recent Complaints</h2>
           </div>
-          <div className="divide-y divide-slate-200">
+          <div className="divide-y divide-charcoal-900">
             {adminComplaints.slice(0, 6).map((complaint) => (
               <div
                 key={complaint.id}
-                className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-charcoal-900/30 transition-colors"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-950 truncate">{complaint.title}</p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm font-semibold text-warm-cream truncate">{complaint.title}</p>
+                  <p className="text-xs text-warm-cream/40 mt-1 tracking-wide">
                     {complaint.id} • {complaint.category} • {new Date(complaint.submittedAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[complaint.status]}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${statusColors[complaint.status]}`}
                   >
                     {complaint.status.replace('_', ' ')}
                   </span>
                   <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${priorityColors[complaint.priority]}`}
+                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${priorityColors[complaint.priority]}`}
                   >
                     {complaint.priority}
                   </span>
@@ -86,67 +84,67 @@ function AdminDashboard() {
               </div>
             ))}
           </div>
-          <div className="px-6 py-4 border-t border-slate-200">
+          <div className="px-6 py-4 border-t border-charcoal-900 bg-charcoal-900/20">
             <Link
               to="/admin/complaints"
-              className="text-sm font-medium text-blue-700 hover:text-blue-900"
+              className="text-xs font-bold tracking-[0.25em] text-warm-cream hover:text-acid-lime transition-colors uppercase"
             >
-              View all complaints →
+              View all complaints ↗
             </Link>
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-slate-950">Quick Actions</h2>
+        <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 shadow-none relative overflow-hidden">
+          <div className="border-b border-charcoal-900 px-6 py-5">
+            <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-warm-cream">Quick Actions</h2>
           </div>
           <div className="p-6 space-y-4">
             <Link
               to="/admin/complaints"
-              className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              className="flex items-center gap-4 rounded-[25px] p-4 border border-charcoal-900 bg-charcoal-900/40 hover:border-warm-cream/20 hover:bg-charcoal-900/80 transition-all duration-300 relative group"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[15px] bg-pitch-black text-warm-cream group-hover:bg-acid-lime group-hover:text-pitch-black transition-all duration-300 flex-shrink-0">
                 <InboxIcon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <p className="font-medium text-slate-950">Manage Complaints</p>
-                <p className="text-sm text-slate-500">Review, assign, and update complaints</p>
+                <p className="text-sm font-bold tracking-[0.1em] text-warm-cream uppercase">Manage Complaints</p>
+                <p className="text-xs text-warm-cream/40 mt-0.5">Review, assign, and update campus complaints</p>
               </div>
             </Link>
             <Link
               to="/admin/analytics"
-              className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              className="flex items-center gap-4 rounded-[25px] p-4 border border-charcoal-900 bg-charcoal-900/40 hover:border-warm-cream/20 hover:bg-charcoal-900/80 transition-all duration-300 relative group"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-700">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[15px] bg-pitch-black text-warm-cream group-hover:bg-acid-lime group-hover:text-pitch-black transition-all duration-300 flex-shrink-0">
                 <ChartBarIcon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <p className="font-medium text-slate-950">View Analytics</p>
-                <p className="text-sm text-slate-500">Complaint trends and statistics</p>
+                <p className="text-sm font-bold tracking-[0.1em] text-warm-cream uppercase">View Analytics</p>
+                <p className="text-xs text-warm-cream/40 mt-0.5">Complaint trends, stats and distribution reports</p>
               </div>
             </Link>
             <Link
               to="/admin/users"
-              className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              className="flex items-center gap-4 rounded-[25px] p-4 border border-charcoal-900 bg-charcoal-900/40 hover:border-warm-cream/20 hover:bg-charcoal-900/80 transition-all duration-300 relative group"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-700">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[15px] bg-pitch-black text-warm-cream group-hover:bg-acid-lime group-hover:text-pitch-black transition-all duration-300 flex-shrink-0">
                 <UsersIcon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <p className="font-medium text-slate-950">Manage Users</p>
-                <p className="text-sm text-slate-500">View and manage student accounts</p>
+                <p className="text-sm font-bold tracking-[0.1em] text-warm-cream uppercase">Manage Users</p>
+                <p className="text-xs text-warm-cream/40 mt-0.5">View and manage system registered user accounts</p>
               </div>
             </Link>
             <Link
               to="/settings"
-              className="flex items-center gap-3 rounded-lg p-4 border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+              className="flex items-center gap-4 rounded-[25px] p-4 border border-charcoal-900 bg-charcoal-900/40 hover:border-warm-cream/20 hover:bg-charcoal-900/80 transition-all duration-300 relative group"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-700">
+              <div className="flex h-10 w-10 items-center justify-center rounded-[15px] bg-pitch-black text-warm-cream group-hover:bg-acid-lime group-hover:text-pitch-black transition-all duration-300 flex-shrink-0">
                 <CogIcon className="h-5 w-5" aria-hidden="true" />
               </div>
               <div>
-                <p className="font-medium text-slate-950">System Settings</p>
-                <p className="text-sm text-slate-500">Configure system preferences</p>
+                <p className="text-sm font-bold tracking-[0.1em] text-warm-cream uppercase">System Settings</p>
+                <p className="text-xs text-warm-cream/40 mt-0.5">Configure system metrics and student settings</p>
               </div>
             </Link>
           </div>

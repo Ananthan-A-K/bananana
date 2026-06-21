@@ -1,15 +1,14 @@
 import React from 'react';
-import Input from '../ui/Input';
 
 const SearchBox = ({ value, onChange, placeholder = 'Search...', className = '' }) => {
   return (
     <div className={`relative ${className}`}>
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+      <div className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-warm-cream/60">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
-          strokeWidth={1.5}
+          strokeWidth={2}
           stroke="currentColor"
           className="w-4 h-4"
         >
@@ -20,11 +19,12 @@ const SearchBox = ({ value, onChange, placeholder = 'Search...', className = '' 
           />
         </svg>
       </div>
-      <Input
+      <input
+        type="text"
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="pl-7"
+        className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 pl-10 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
       />
     </div>
   );

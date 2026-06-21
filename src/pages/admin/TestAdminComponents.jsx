@@ -22,8 +22,8 @@ const TestAdminComponents = () => {
     { 
       header: 'Actions', 
       cell: () => (
-        <button className="text-blue-600 hover:underline font-medium">
-          View Details
+        <button className="text-[10px] font-bold tracking-[0.1em] text-bone-white hover:text-arterial-red uppercase transition-all cursor-pointer">
+          View Details ↗
         </button>
       ) 
     },
@@ -42,10 +42,10 @@ const TestAdminComponents = () => {
   });
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-8 bg-void-canvas">
       <section>
-        <h2 className="text-2xl font-bold mb-4">Admin Components Test Bench</h2>
-        <p className="text-slate-600 mb-6">Testing reusability and responsive behavior.</p>
+        <h2 className="text-2xl font-bold tracking-tight text-bone-white uppercase">Admin Components Test Bench</h2>
+        <p className="mt-1.5 text-xs text-ash tracking-wide font-light mb-6">Testing reusability and responsive behavior.</p>
         
         <FilterBar>
           <SearchBox 
@@ -67,7 +67,7 @@ const TestAdminComponents = () => {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">Loading State Test</h2>
+        <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-bone-white mb-4">Loading State Test</h2>
         <AdminTable 
           columns={columns} 
           data={[]} 
@@ -76,7 +76,7 @@ const TestAdminComponents = () => {
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">Empty State Test</h2>
+        <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-bone-white mb-4">Empty State Test</h2>
         <AdminTable 
           columns={columns} 
           data={[]} 

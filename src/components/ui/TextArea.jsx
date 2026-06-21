@@ -13,9 +13,9 @@ const TextArea = ({
   ...props
 }) => {
   return (
-    <div className={`flex flex-col gap-1.5 ${className}`}>
+    <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-slate-700">
+        <label htmlFor={id} className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">
           {label}
         </label>
       )}
@@ -26,14 +26,14 @@ const TextArea = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 ${
+        className={`w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-[25px] border px-5 py-4 text-sm transition-all focus:outline-none focus:ring-1 ${
           error
-            ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
-            : 'border-slate-300 focus:border-blue-500 focus:ring-blue-100'
+            ? 'border-ember-orange focus:border-ember-orange focus:ring-ember-orange'
+            : 'border-charcoal-900 focus:border-acid-lime focus:ring-acid-lime'
         }`}
         {...props}
       />
-      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+      {error && <p className="text-xs text-ember-orange font-medium tracking-wide mt-0.5">{error}</p>}
     </div>
   );
 };
