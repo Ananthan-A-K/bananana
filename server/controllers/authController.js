@@ -7,6 +7,14 @@ const generateToken = (id) => {
   });
 };
 
+const buildUserPayload = (user) => ({
+  id: user._id.toString(),
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  approvalStatus: user.approvalStatus || 'approved',
+});
+
 export async function login(req, res) {
   const { email, password } = req.body;
 
@@ -14,13 +22,15 @@ export async function login(req, res) {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
+      if (user.approvalStatus === 'pending') {
+        return res.status(403).json({
+          message: 'Your account is waiting for admin approval.',
+          approvalStatus: 'pending',
+        });
+      }
+
       res.json({
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
+        user: buildUserPayload(user),
         token: generateToken(user._id),
       });
     } else {
@@ -32,7 +42,7 @@ export async function login(req, res) {
 }
 
 export async function register(req, res) {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
 
   try {
     const userExists = await User.findOne({ email });
@@ -45,18 +55,14 @@ export async function register(req, res) {
       name,
       email,
       password,
-      role: role || 'student',
+      role: 'student',
+      approvalStatus: 'pending',
     });
 
     if (user) {
       res.status(201).json({
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-        token: generateToken(user._id),
+        message: 'Account created. An admin must approve it before you can log in.',
+        user: buildUserPayload(user),
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -73,12 +79,7 @@ export async function me(req, res) {
     }
 
     return res.status(200).json({
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role,
-      },
+      user: buildUserPayload(req.user),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to fetch current user', error: error.message });
@@ -122,12 +123,7 @@ export async function updateProfile(req, res) {
     await user.save();
 
     return res.status(200).json({
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: buildUserPayload(user),
       token: generateToken(user._id),
     });
   } catch (error) {

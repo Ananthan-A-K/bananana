@@ -231,6 +231,9 @@ export const statusColors = {
   pending: 'bg-ember-orange text-pitch-black font-extrabold',
   in_progress: 'bg-iris-violet text-warm-cream font-extrabold',
   resolved: 'bg-acid-lime text-pitch-black font-extrabold',
+  rejected: 'bg-charcoal-900 text-warm-cream/50 border border-charcoal-900',
+  closed: 'bg-charcoal-900 text-warm-cream/50 border border-charcoal-900',
+  open: 'bg-ember-orange text-pitch-black font-extrabold',
 };
 
 export const priorityColors = {

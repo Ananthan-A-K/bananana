@@ -17,6 +17,7 @@ function AdminUsers() {
     email: '',
     password: '',
     role: 'student',
+    approvalStatus: 'approved',
   });
 
   async function fetchUsers() {
@@ -66,6 +67,7 @@ function AdminUsers() {
       email: '',
       password: '',
       role: 'student',
+      approvalStatus: 'approved',
     });
     setIsFormOpen(true);
   };
@@ -78,6 +80,7 @@ function AdminUsers() {
       email: user.email || '',
       password: '',
       role: user.role || 'student',
+      approvalStatus: user.approvalStatus || 'approved',
     });
     setIsFormOpen(true);
   };
@@ -108,6 +111,7 @@ function AdminUsers() {
       name: formValues.name.trim(),
       email: formValues.email.trim(),
       role: formValues.role,
+      approvalStatus: formValues.approvalStatus,
     };
 
     if (!payload.name || !payload.email || !payload.role) {
@@ -159,6 +163,17 @@ function AdminUsers() {
     }
   };
 
+  const handleApproveUser = async (user) => {
+    try {
+      await api.put(`/admin/users/${user.id}`, {
+        approvalStatus: 'approved',
+      });
+      await refreshUsers();
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to approve user.');
+    }
+  };
+
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase();
 
@@ -172,7 +187,8 @@ function AdminUsers() {
         user.name?.toLowerCase?.().includes(query) ||
         user.email?.toLowerCase?.().includes(query) ||
         user.role?.toLowerCase?.().includes(query) ||
-        String(user.status || '').toLowerCase().includes(query)
+        String(user.approvalStatus || '').toLowerCase().includes(query) ||
+        String(user.activityStatus || '').toLowerCase().includes(query)
       );
     });
   }, [search, users]);
@@ -197,16 +213,30 @@ function AdminUsers() {
     },
     { header: 'Complaints', accessor: 'complaints' },
     {
-      header: 'Status',
+      header: 'Approval',
       cell: (user) => (
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
-            user.status === 'active'
+            user.approvalStatus === 'approved'
+              ? 'bg-acid-lime text-pitch-black font-extrabold'
+              : 'bg-ember-orange text-pitch-black font-extrabold'
+          }`}
+        >
+          {user.approvalStatus || 'approved'}
+        </span>
+      ),
+    },
+    {
+      header: 'Activity',
+      cell: (user) => (
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${
+            user.activityStatus === 'active'
               ? 'bg-acid-lime text-pitch-black font-extrabold'
               : 'bg-charcoal-900 text-warm-cream/40 border border-charcoal-900'
           }`}
         >
-          {user.status}
+          {user.activityStatus}
         </span>
       ),
     },
@@ -214,6 +244,15 @@ function AdminUsers() {
       header: 'Actions',
       cell: (user) => (
         <div className="flex items-center gap-4">
+          {user.approvalStatus !== 'approved' ? (
+            <button
+              type="button"
+              onClick={() => handleApproveUser(user)}
+              className="text-xs font-bold tracking-wider text-acid-lime hover:text-lime-400 uppercase transition-colors cursor-pointer"
+            >
+              Approve
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={() => handleEditUser(user)}
@@ -275,7 +314,7 @@ function AdminUsers() {
         <SearchBox
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search users by name, email, role..."
+          placeholder="Search users by name, email, role, approval..."
           className="w-full"
         />
       </FilterBar>
@@ -300,7 +339,9 @@ function AdminUsers() {
                   {formMode === 'add' ? 'Add User' : 'Edit User'}
                 </h2>
                 <p className="mt-1.5 text-xs text-warm-cream/60 tracking-wide font-light">
-                  {formMode === 'add' ? 'Create a new account in the users state.' : 'Update the selected user record.'}
+                  {formMode === 'add'
+                    ? 'Create a new account in the users list.'
+                    : 'Update the selected user record and approval status.'}
                 </p>
               </div>
               <button
@@ -363,6 +404,19 @@ function AdminUsers() {
                   </select>
                 </label>
               </div>
+
+              <label className="space-y-2 block">
+                <span className="block text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Approval Status</span>
+                <select
+                  name="approvalStatus"
+                  value={formValues.approvalStatus}
+                  onChange={handleFormChange}
+                  className="w-full rounded-full border border-charcoal-900 bg-pitch-black px-4 py-3 text-sm text-warm-cream outline-none transition focus:border-acid-lime"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                </select>
+              </label>
 
               <div className="flex items-center justify-end gap-3 pt-2">
                 <button

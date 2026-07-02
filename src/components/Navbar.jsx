@@ -1,10 +1,9 @@
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/useAuth.js';
 import { MenuIcon } from './Icons.jsx';
 
 function Navbar({ onMenuClick }) {
   const { user, logout } = useAuth();
-  const location = useLocation();
 
   return (
     <>
