@@ -8,6 +8,10 @@ function ProtectedRoute({ allowedRoles }) {
     return <Navigate to="/login" replace />;
   }
 
+  if (user.approvalStatus === 'pending') {
+    return <Navigate to="/login" replace state={{ message: 'Your account is waiting for admin approval.' }} />;
+  }
+
   if (allowedRoles?.length && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }

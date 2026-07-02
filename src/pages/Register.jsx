@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Input from '../components/ui/Input.jsx';
-import Select from '../components/ui/Select.jsx';
-import { useAuth } from '../context/useAuth.js';
 import api from '../services/api.js';
 
 const initialValues = {
   name: '',
   email: '',
   password: '',
-  role: 'student',
 };
 
 function validate(values) {
@@ -32,10 +29,6 @@ function validate(values) {
     nextErrors.password = 'Password must be at least 6 characters';
   }
 
-  if (!['student', 'admin'].includes(values.role)) {
-    nextErrors.role = 'Select a valid role';
-  }
-
   return nextErrors;
 }
 
@@ -44,7 +37,6 @@ function Register() {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (event) => {
@@ -69,16 +61,19 @@ function Register() {
 
     try {
       const { data } = await api.post('/auth/register', values);
-      const token = data.token;
       const user = data.user;
 
-      if (!token || !user?.role) {
+      if (!user?.role) {
         throw new Error('Invalid register response');
       }
 
-      login({ token, user });
-      navigate(user.role === 'admin' ? '/admin/dashboard' : '/student/dashboard', {
+      navigate('/login', {
         replace: true,
+        state: {
+          message:
+            data.message ||
+            'Account created. An admin must approve it before you can log in.',
+        },
       });
     } catch (error) {
       setSubmitError(
@@ -97,7 +92,7 @@ function Register() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-warm-cream uppercase">Create account</h1>
           <p className="mt-1.5 text-xs text-ash tracking-wide font-light">
-            Register as a student or admin for BANANANA access.
+            Register a student account. An admin must approve it before login.
           </p>
         </div>
 
@@ -130,19 +125,6 @@ function Register() {
             placeholder="Minimum 6 characters"
             type="password"
             value={values.password}
-          />
-
-          <Select
-            error={errors.role}
-            id="register-role"
-            label="Account Role"
-            name="role"
-            onChange={handleChange}
-            options={[
-              { value: 'student', label: 'Student' },
-              { value: 'admin', label: 'Admin' },
-            ]}
-            value={values.role}
           />
 
           {submitError ? (

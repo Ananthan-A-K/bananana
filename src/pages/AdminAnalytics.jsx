@@ -3,34 +3,55 @@ import api from '../services/api.js';
 import StatCard from '../components/StatCard.jsx';
 import { DocumentTextIcon, ClockIcon, ExclamationCircleIcon, CheckCircleIcon } from '../components/Icons.jsx';
 import { useAuth } from '../context/useAuth.js';
+import { statusColors } from '../data/dummyData.js';
+import { getComplaintStageStats, normalizeComplaintStatus } from '../utils/complaintStatus.js';
+
+const stageDotColors = {
+  pending: 'bg-ember-orange',
+  in_progress: 'bg-iris-violet',
+  resolved: 'bg-acid-lime',
+  rejected: 'bg-charcoal-900',
+  closed: 'bg-charcoal-900',
+};
 
 function AdminAnalytics() {
   const { isAuthenticated } = useAuth();
   const [complaints, setComplaints] = useState([]);
 
-  async function fetchComplaints() {
-    if (!isAuthenticated) return;
-    console.log('Fetching complaints...');
-    try {
-      // Changed to admin/complaints to ensure we get all complaints
-      const { data } = await api.get('/admin/complaints');
-      console.log('Complaints data:', data);
-      setComplaints(data);
-    } catch (err) {
-      console.error('Fetch complaints error:', err);
-      setComplaints([]);
-    }
-  }
-
   useEffect(() => {
-    fetchComplaints();
+    let ignore = false;
+
+    async function loadComplaints() {
+      if (!isAuthenticated) {
+        setComplaints([]);
+        return;
+      }
+
+      try {
+        const { data } = await api.get('/admin/complaints');
+        if (!ignore) {
+          setComplaints(data);
+        }
+      } catch (err) {
+        console.error('Fetch complaints error:', err);
+        if (!ignore) {
+          setComplaints([]);
+        }
+      }
+    }
+
+    loadComplaints();
+
+    return () => {
+      ignore = true;
+    };
   }, [isAuthenticated]);
 
   const stats = useMemo(() => {
     const total = complaints.length;
-    const pending = complaints.filter((complaint) => complaint.status === 'pending').length;
-    const inProgress = complaints.filter((complaint) => complaint.status === 'in_progress').length;
-    const resolved = complaints.filter((complaint) => complaint.status === 'resolved').length;
+    const pending = complaints.filter((complaint) => normalizeComplaintStatus(complaint.status) === 'pending').length;
+    const inProgress = complaints.filter((complaint) => normalizeComplaintStatus(complaint.status) === 'in_progress').length;
+    const resolved = complaints.filter((complaint) => normalizeComplaintStatus(complaint.status) === 'resolved').length;
 
     return { total, pending, inProgress, resolved };
   }, [complaints]);
@@ -44,14 +65,7 @@ function AdminAnalytics() {
     [complaints],
   );
 
-  const statusStats = useMemo(
-    () =>
-      complaints.reduce((acc, complaint) => {
-        acc[complaint.status] = (acc[complaint.status] || 0) + 1;
-        return acc;
-      }, {}),
-    [complaints],
-  );
+  const stageStats = useMemo(() => getComplaintStageStats(complaints), [complaints]);
 
   const priorityStats = useMemo(
     () =>
@@ -74,20 +88,20 @@ function AdminAnalytics() {
       ];
     }
 
-    const months = [];
     const latestDate = complaints.reduce((latest, complaint) => {
-      const date = new Date(complaint.submittedAt || 0);
+      const date = new Date(complaint.submittedAt || complaint.createdDate || 0);
       return date > latest ? date : latest;
     }, new Date(0));
 
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [];
 
     for (let i = 5; i >= 0; i -= 1) {
       const monthDate = new Date(Date.UTC(latestDate.getUTCFullYear(), latestDate.getUTCMonth() - i, 1));
       const year = monthDate.getUTCFullYear();
       const month = monthDate.getUTCMonth();
       const count = complaints.filter((complaint) => {
-        const complaintDate = new Date(complaint.submittedAt || 0);
+        const complaintDate = new Date(complaint.submittedAt || complaint.createdDate || 0);
         return complaintDate.getUTCFullYear() === year && complaintDate.getUTCMonth() === month;
       }).length;
 
@@ -107,6 +121,7 @@ function AdminAnalytics() {
 
     return { x, y, count: month.count, label: month.label };
   });
+
   const chartPath = chartPoints.length
     ? `M ${chartPoints
         .map((point) => `${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
@@ -127,6 +142,41 @@ function AdminAnalytics() {
         <StatCard title="Resolved" value={stats.resolved} icon={CheckCircleIcon} iconColor="green" />
       </div>
 
+      <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-none relative overflow-hidden">
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <div>
+            <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-warm-cream">Complaint Stages</h2>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-warm-cream/40">
+              Count of complaints by stage across the live dataset
+            </p>
+          </div>
+          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-acid-lime">
+            {stats.total} total
+          </span>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {stageStats.map((stage) => (
+            <div key={stage.key} className="rounded-[20px] border border-charcoal-900 bg-pitch-black p-4">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">{stage.label}</span>
+                <span className={`h-2.5 w-2.5 rounded-full ${stageDotColors[stage.key] || 'bg-warm-cream/20'}`} />
+              </div>
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <p className="text-3xl font-black text-warm-cream font-oldschoolgrotesk">{stage.count}</p>
+                <p className="text-[10px] font-bold tracking-widest text-acid-lime uppercase">{stage.percent}%</p>
+              </div>
+              <div className="mt-3 h-2 rounded-full bg-charcoal-900 overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${statusColors[stage.key] || statusColors.pending}`}
+                  style={{ width: `${stage.percent}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-none relative overflow-hidden">
           <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-warm-cream mb-6 font-oldschoolgrotesk">Complaints by Category</h2>
@@ -140,7 +190,7 @@ function AdminAnalytics() {
                 <div className="h-2 bg-pitch-black rounded-full overflow-hidden">
                   <div
                     className="h-full bg-acid-lime rounded-full transition-all"
-                    style={{ width: `${(count / stats.total) * 100}%` }}
+                    style={{ width: `${stats.total ? (count / stats.total) * 100 : 0}%` }}
                   />
                 </div>
               </div>
@@ -157,6 +207,7 @@ function AdminAnalytics() {
                 medium: 'bg-schoolbus-yellow',
                 low: 'bg-cobalt-blue',
               };
+
               return (
                 <div key={priority} className="space-y-2">
                   <div className="flex justify-between text-xs font-medium tracking-wide">
@@ -166,30 +217,12 @@ function AdminAnalytics() {
                   <div className="h-2 bg-pitch-black rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${colors[priority]}`}
-                      style={{ width: `${(count / stats.total) * 100}%` }}
+                      style={{ width: `${stats.total ? (count / stats.total) * 100 : 0}%` }}
                     />
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-none relative overflow-hidden">
-          <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-warm-cream mb-6 font-oldschoolgrotesk">Status Distribution</h2>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="text-center p-4 rounded-[25px] bg-pitch-black border border-charcoal-900">
-              <p className="text-3xl font-black text-ember-orange font-oldschoolgrotesk">{statusStats.pending || 0}</p>
-              <p className="text-[10px] font-bold tracking-widest text-warm-cream/60 uppercase mt-1">Pending</p>
-            </div>
-            <div className="text-center p-4 rounded-[25px] bg-pitch-black border border-charcoal-900">
-              <p className="text-3xl font-black text-iris-violet font-oldschoolgrotesk">{statusStats.in_progress || 0}</p>
-              <p className="text-[10px] font-bold tracking-widest text-warm-cream/60 uppercase mt-1">In Progress</p>
-            </div>
-            <div className="text-center p-4 rounded-[25px] bg-pitch-black border border-charcoal-900">
-              <p className="text-3xl font-black text-acid-lime font-oldschoolgrotesk">{statusStats.resolved || 0}</p>
-              <p className="text-[10px] font-bold tracking-widest text-warm-cream/60 uppercase mt-1">Resolved</p>
-            </div>
           </div>
         </div>
 
@@ -229,6 +262,20 @@ function AdminAnalytics() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-none relative overflow-hidden">
+          <h2 className="text-xs font-bold tracking-[0.2em] uppercase text-warm-cream mb-6 font-oldschoolgrotesk">Stage Summary</h2>
+          <div className="space-y-4">
+            {stageStats.map((stage) => (
+              <div key={stage.key} className="flex items-center justify-between rounded-2xl border border-charcoal-900 bg-pitch-black px-4 py-3">
+                <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-warm-cream/60">{stage.label}</span>
+                <span className="text-xs font-black tracking-widest text-warm-cream">
+                  {stage.count} / {stage.percent}%
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

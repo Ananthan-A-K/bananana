@@ -1,6 +1,21 @@
 import Complaint from '../models/Complaint.js';
 import User from '../models/User.js';
 
+const APPROVAL_STATUSES = ['pending', 'approved'];
+
+function buildUserRecord(user, complaintCount) {
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    approvalStatus: user.approvalStatus || 'approved',
+    complaints: complaintCount,
+    activityStatus: complaintCount > 0 ? 'active' : 'inactive',
+    createdAt: user.createdAt,
+  };
+}
+
 export async function getAdminUsers(req, res) {
   try {
     const users = await User.find({}).select('-password').sort({ createdAt: -1 });
@@ -18,15 +33,7 @@ export async function getAdminUsers(req, res) {
     return res.status(200).json(
       users.map((user) => {
         const userId = user._id.toString();
-        return {
-          id: userId,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          complaints: complaintCounts[userId] || 0,
-          status: complaintCounts[userId] > 0 ? 'active' : 'inactive',
-          createdAt: user.createdAt,
-        };
+        return buildUserRecord(user, complaintCounts[userId] || 0);
       }),
     );
   } catch (error) {
@@ -54,16 +61,16 @@ export async function createAdminUser(req, res) {
       return res.status(409).json({ message: 'Email already exists' });
     }
 
-    const user = await User.create({ name, email, password, role });
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+      approvalStatus: 'approved',
+    });
 
     return res.status(201).json({
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      complaints: 0,
-      status: 'inactive',
-      createdAt: user.createdAt,
+      ...buildUserRecord(user, 0),
     });
   } catch (error) {
     return res.status(500).json({
@@ -76,7 +83,7 @@ export async function createAdminUser(req, res) {
 export async function updateAdminUser(req, res) {
   try {
     const { id } = req.params;
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, approvalStatus } = req.body;
 
     const user = await User.findById(id);
 
@@ -92,6 +99,12 @@ export async function updateAdminUser(req, res) {
       }
       user.role = role;
     }
+    if (approvalStatus !== undefined) {
+      if (!APPROVAL_STATUSES.includes(approvalStatus)) {
+        return res.status(400).json({ message: 'Invalid approval status' });
+      }
+      user.approvalStatus = approvalStatus;
+    }
     if (password) user.password = password;
 
     await user.save();
@@ -102,15 +115,7 @@ export async function updateAdminUser(req, res) {
       return ownerId === user._id.toString();
     }).length;
 
-    return res.status(200).json({
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      complaints: complaintCount,
-      status: complaintCount > 0 ? 'active' : 'inactive',
-      createdAt: user.createdAt,
-    });
+    return res.status(200).json(buildUserRecord(user, complaintCount));
   } catch (error) {
     return res.status(500).json({
       message: 'Failed to update user',

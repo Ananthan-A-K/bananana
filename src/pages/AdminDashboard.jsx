@@ -3,8 +3,22 @@ import { Link } from 'react-router-dom';
 import api from '../services/api.js';
 import { useAuth } from '../context/useAuth.js';
 import StatCard from '../components/StatCard.jsx';
-import { DocumentTextIcon, ClockIcon, ExclamationCircleIcon, CheckCircleIcon, UsersIcon, ChartBarIcon, InboxIcon, CogIcon } from '../components/Icons.jsx';
-import { statusColors, priorityColors } from '../data/dummyData.js';
+import {
+  DocumentTextIcon,
+  ClockIcon,
+  ExclamationCircleIcon,
+  CheckCircleIcon,
+  UsersIcon,
+  ChartBarIcon,
+  InboxIcon,
+  CogIcon,
+} from '../components/Icons.jsx';
+import { priorityColors, statusColors } from '../data/dummyData.js';
+import {
+  formatComplaintStatusLabel,
+  getComplaintStageStats,
+  normalizeComplaintStatus,
+} from '../utils/complaintStatus.js';
 
 function AdminDashboard() {
   const { user } = useAuth();
@@ -15,7 +29,7 @@ function AdminDashboard() {
 
     async function fetchComplaints() {
       try {
-        const { data } = await api.get('/complaints');
+        const { data } = await api.get('/admin/complaints');
         if (active) {
           setComplaints(data);
         }
@@ -35,17 +49,19 @@ function AdminDashboard() {
 
   const stats = useMemo(() => {
     const total = complaints.length;
-    const pending = complaints.filter((complaint) => complaint.status === 'pending').length;
-    const inProgress = complaints.filter((complaint) => complaint.status === 'in_progress').length;
-    const resolved = complaints.filter((complaint) => complaint.status === 'resolved').length;
+    const pending = complaints.filter((complaint) => normalizeComplaintStatus(complaint.status) === 'pending').length;
+    const inProgress = complaints.filter((complaint) => normalizeComplaintStatus(complaint.status) === 'in_progress').length;
+    const resolved = complaints.filter((complaint) => normalizeComplaintStatus(complaint.status) === 'resolved').length;
 
     return { total, pending, inProgress, resolved };
   }, [complaints]);
 
+  const stageStats = useMemo(() => getComplaintStageStats(complaints), [complaints]);
+
   const recentComplaints = useMemo(
     () =>
       [...complaints]
-        .sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0))
+        .sort((a, b) => new Date(b.submittedAt || b.createdDate || 0) - new Date(a.submittedAt || a.createdDate || 0))
         .slice(0, 6),
     [complaints],
   );
@@ -94,50 +110,88 @@ function AdminDashboard() {
         />
       </div>
 
+      <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 p-6 shadow-none relative overflow-hidden">
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <div>
+            <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-warm-cream">Complaint Stages</h2>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-warm-cream/40">
+              Live breakdown of complaint progress across the system
+            </p>
+          </div>
+          <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-acid-lime">
+            {stats.total} total
+          </span>
+        </div>
+
+        <div className="space-y-4">
+          {stageStats.map((stage) => (
+            <div key={stage.key} className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-medium tracking-wide">
+                <span className="text-warm-cream/60 uppercase tracking-[0.2em]">{stage.label}</span>
+                <span className="text-warm-cream font-bold">
+                  {stage.count} {stage.percent ? `(${stage.percent}%)` : ''}
+                </span>
+              </div>
+              <div className="h-2 bg-pitch-black rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${statusColors[stage.key] || statusColors.pending}`}
+                  style={{ width: `${stage.percent}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 shadow-none relative overflow-hidden">
           <div className="border-b border-charcoal-900 px-6 py-5">
             <h2 className="text-xs font-bold tracking-[0.25em] uppercase text-warm-cream">Recent Complaints</h2>
           </div>
           <div className="divide-y divide-charcoal-900">
-            {recentComplaints.map((complaint) => (
-              <div
-                key={complaint.id}
-                className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-charcoal-900/30 transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-warm-cream truncate">{complaint.title}</p>
-                  <p className="text-xs text-warm-cream/40 mt-1 tracking-wide">
-                    {complaint.id} • {complaint.category} • {new Date(complaint.submittedAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${statusColors[complaint.status]}`}
-                  >
-                    {complaint.status.replace('_', ' ')}
-                  </span>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${priorityColors[complaint.priority]}`}
-                  >
-                    {complaint.priority}
-                  </span>
-                </div>
-                <Link
-                  to={`/admin/complaints/${complaint.id}`}
-                  className="text-[10px] font-black tracking-widest text-warm-cream hover:text-acid-lime uppercase transition-all self-start sm:self-auto"
+            {recentComplaints.map((complaint) => {
+              const complaintStatus = normalizeComplaintStatus(complaint.status);
+              const complaintDate = complaint.submittedAt || complaint.createdDate || complaint.createdAt || 0;
+
+              return (
+                <div
+                  key={complaint.id}
+                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-charcoal-900/30 transition-colors"
                 >
-                  View Details ↗
-                </Link>
-              </div>
-            ))}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-warm-cream truncate">{complaint.title}</p>
+                    <p className="text-xs text-warm-cream/40 mt-1 tracking-wide">
+                      {complaint.id} - {complaint.category} - {new Date(complaintDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${statusColors[complaintStatus] || statusColors.pending}`}
+                    >
+                      {formatComplaintStatusLabel(complaint.status)}
+                    </span>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wider uppercase ${priorityColors[complaint.priority] || priorityColors.medium}`}
+                    >
+                      {complaint.priority || 'medium'}
+                    </span>
+                  </div>
+                  <Link
+                    to={`/admin/complaints/${complaint.id}`}
+                    className="text-[10px] font-black tracking-widest text-warm-cream hover:text-acid-lime uppercase transition-all self-start sm:self-auto"
+                  >
+                    {'View Details ->'}
+                  </Link>
+                </div>
+              );
+            })}
           </div>
           <div className="px-6 py-4 border-t border-charcoal-900 bg-charcoal-900/20">
             <Link
               to="/admin/complaints"
               className="text-xs font-bold tracking-[0.25em] text-warm-cream hover:text-acid-lime transition-colors uppercase"
             >
-              View all complaints ↗
+              {'View all complaints ->'}
             </Link>
           </div>
         </div>

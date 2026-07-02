@@ -1,8 +1,9 @@
 import React from 'react';
+import { formatComplaintStatusLabel, normalizeComplaintStatus } from '../../utils/complaintStatus.js';
 
 const StatusBadge = ({ status }) => {
   const getStatusStyles = (status) => {
-    switch (status.toLowerCase()) {
+    switch (normalizeComplaintStatus(status)) {
       case 'resolved':
         return 'bg-acid-lime text-pitch-black font-extrabold';
       case 'in_progress':
@@ -12,14 +13,9 @@ const StatusBadge = ({ status }) => {
       case 'rejected':
       case 'closed':
         return 'bg-charcoal-900 text-warm-cream/50 border border-charcoal-900';
-      case 'open':
       default:
         return 'bg-warm-cream text-pitch-black font-extrabold border border-charcoal-900/10';
     }
-  };
-
-  const formatStatus = (status) => {
-    return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
   };
 
   return (
@@ -28,7 +24,7 @@ const StatusBadge = ({ status }) => {
         status
       )}`}
     >
-      {formatStatus(status)}
+      {formatComplaintStatusLabel(status)}
     </span>
   );
 };

@@ -13,10 +13,18 @@ export async function protect(req, res, next) {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      req.user = await User.findById(decoded.id).select('-password');
+      const userQuery = User.findById(decoded.id);
+      req.user = userQuery?.select ? await userQuery.select('-password') : await userQuery;
 
       if (!req.user) {
         return res.status(401).json({ message: 'Not authorized, user not found' });
+      }
+
+      if (req.user.approvalStatus === 'pending') {
+        return res.status(403).json({
+          message: 'Your account is waiting for admin approval.',
+          approvalStatus: 'pending',
+        });
       }
 
       next();

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Input from '../components/ui/Input.jsx';
 import { useAuth } from '../context/useAuth.js';
 import api from '../services/api.js';
@@ -35,6 +35,8 @@ function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const approvalMessage = location.state?.message;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -90,6 +92,11 @@ function Login() {
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+          {approvalMessage ? (
+            <p className="rounded-lg border border-acid-lime/30 bg-acid-lime/10 px-4 py-3 text-xs font-medium tracking-wide text-acid-lime">
+              {approvalMessage}
+            </p>
+          ) : null}
           <div className="rounded-xl bg-pitch-black/60 border border-pitch-black px-4 py-3 text-[11px] text-warm-cream/80 font-light leading-relaxed">
             <span className="font-bold text-warm-cream uppercase tracking-wider block mb-1">Demo Credentials:</span>
             Student: <code className="text-acid-lime">student@campus.edu</code> / <code className="text-acid-lime">password123</code><br/>
