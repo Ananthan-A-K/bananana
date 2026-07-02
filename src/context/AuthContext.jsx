@@ -36,12 +36,23 @@ export function AuthProvider({ children }) {
     setAuth({ user: null, token: null });
   };
 
+  const updateUser = ({ user: nextUser, token: nextToken }) => {
+    localStorage.setItem('ccms_user', JSON.stringify(nextUser));
+    if (nextToken) {
+      localStorage.setItem('ccms_token', nextToken);
+      setAuth({ user: nextUser, token: nextToken });
+    } else {
+      setAuth((prev) => ({ ...prev, user: nextUser }));
+    }
+  };
+
   const value = useMemo(
     () => ({
       user: auth.user,
       token: auth.token,
       login,
       logout,
+      updateUser,
       isAuthenticated: Boolean(auth.user && auth.token),
     }),
     [auth],

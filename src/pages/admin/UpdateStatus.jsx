@@ -19,15 +19,9 @@ const UpdateStatus = () => {
     const fetchComplaint = async () => {
       try {
         setLoading(true);
-        // In our mock API, get by ID is supported or we filter from all
-        const { data } = await api.get('/complaints');
-        const found = data.find(c => c.id === id);
-        if (found) {
-          setComplaint(found);
-          setNewStatus(found.status);
-        } else {
-          setError('Complaint not found.');
-        }
+        const { data } = await api.get(`/complaints/${id}`);
+        setComplaint(data);
+        setNewStatus(data.status);
       } catch {
         setError('Failed to fetch complaint details.');
       } finally {

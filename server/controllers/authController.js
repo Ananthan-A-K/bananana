@@ -84,3 +84,54 @@ export async function me(req, res) {
     return res.status(500).json({ message: 'Failed to fetch current user', error: error.message });
   }
 }
+
+export async function updateProfile(req, res) {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { name, email, currentPassword, newPassword } = req.body;
+
+    if (name !== undefined) user.name = name;
+
+    if (email !== undefined && email.toLowerCase() !== user.email.toLowerCase()) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email is already taken' });
+      }
+      user.email = email;
+    }
+
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password is required to set a new password' });
+      }
+      const isMatch = await user.matchPassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Incorrect current password' });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: 'New password must be at least 6 characters' });
+      }
+      user.password = newPassword;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to update profile', error: error.message });
+  }
+}
+

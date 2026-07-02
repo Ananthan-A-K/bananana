@@ -1,14 +1,36 @@
+import React, { useState } from 'react';
 import { useAuth } from '../context/useAuth.js';
-import { useState } from 'react';
+import api from '../services/api.js';
 
 function Settings() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
 
+  // Profile Form State
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+
+  // Password Form State
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  // Status State
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-    { id: 'notifications', label: 'Notifications', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
-    { id: 'preferences', label: 'Preferences', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
+    { 
+      id: 'profile', 
+      label: 'Profile', 
+      icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' 
+    },
+    { 
+      id: 'security', 
+      label: 'Security', 
+      icon: 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z' 
+    },
   ];
 
   if (!user) {
@@ -19,12 +41,96 @@ function Settings() {
     );
   }
 
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setSuccessMessage('');
+    setErrorMessage('');
+    
+    if (!name.trim() || !email.trim()) {
+      setErrorMessage('Name and Email are required.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const { data } = await api.put('/auth/profile', { name, email });
+      updateUser({ user: data.user, token: data.token });
+      setSuccessMessage('Profile information updated successfully!');
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
+    } catch (err) {
+      setErrorMessage(err.response?.data?.message || 'Failed to update profile. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setSuccessMessage('');
+    setErrorMessage('');
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setErrorMessage('All password fields are required.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setErrorMessage('New password must be at least 6 characters.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setErrorMessage('New passwords do not match.');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const { data } = await api.put('/auth/profile', {
+        currentPassword,
+        newPassword,
+      });
+      updateUser({ user: data.user, token: data.token });
+      setSuccessMessage('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => setSuccessMessage(''), 5000);
+    } catch (err) {
+      setErrorMessage(err.response?.data?.message || 'Failed to change password. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl space-y-8 bg-pitch-black">
       <div>
         <h1 className="text-3xl font-black tracking-tight text-warm-cream uppercase font-oldschoolgrotesk">Settings</h1>
-        <p className="mt-1.5 text-xs text-warm-cream/60 tracking-wide font-light">Manage your account settings and preferences</p>
+        <p className="mt-1.5 text-xs text-warm-cream/60 tracking-wide font-light">Manage your account settings and credentials</p>
       </div>
+
+      {/* Success alert with fade-in animation */}
+      {successMessage && (
+        <div className="bg-charcoal-900 border border-acid-lime text-acid-lime px-5 py-3 rounded-[20px] flex items-center gap-3 relative overflow-hidden animate-in fade-in duration-300">
+          <svg className="h-5 w-5 text-acid-lime shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <p className="font-bold text-xs uppercase tracking-wider">{successMessage}</p>
+        </div>
+      )}
+
+      {/* Error alert with fade-in animation */}
+      {errorMessage && (
+        <div className="bg-charcoal-900 border border-ember-orange text-ember-orange px-5 py-3 rounded-[20px] flex items-center gap-3 relative overflow-hidden animate-in fade-in duration-300">
+          <svg className="h-5 w-5 text-ember-orange shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p className="font-bold text-xs uppercase tracking-wider">{errorMessage}</p>
+        </div>
+      )}
 
       <div className="rounded-[25px] border border-charcoal-900 bg-charcoal-900/60 shadow-none overflow-hidden relative">
         <div className="border-b border-charcoal-900 overflow-x-auto bg-charcoal-900/20">
@@ -32,7 +138,11 @@ function Settings() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setSuccessMessage('');
+                  setErrorMessage('');
+                }}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
                   activeTab === tab.id
                     ? 'border-acid-lime text-warm-cream'
@@ -50,7 +160,7 @@ function Settings() {
 
         <div className="p-6">
           {activeTab === 'profile' && (
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-6" onSubmit={handleProfileSubmit}>
               <div>
                 <h2 className="text-xs font-bold tracking-[0.2em] text-warm-cream uppercase mb-6 font-oldschoolgrotesk">Profile Information</h2>
                 <div className="grid gap-6 sm:grid-cols-2">
@@ -59,7 +169,8 @@ function Settings() {
                     <input
                       type="text"
                       id="name"
-                      defaultValue={user.name}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
                     />
                   </div>
@@ -68,91 +179,84 @@ function Settings() {
                     <input
                       type="email"
                       id="email"
-                      defaultValue={user.email}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
                     />
                   </div>
                 </div>
                 <div className="mt-6 flex flex-col gap-2">
-                  <label htmlFor="phone" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Phone Number</label>
+                  <label htmlFor="role" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Role</label>
                   <input
-                    type="tel"
-                    id="phone"
-                    placeholder="+1 (555) 000-0000"
-                    className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
+                    type="text"
+                    id="role"
+                    value={user.role}
+                    disabled
+                    className="w-full bg-pitch-black text-warm-cream/45 rounded-full border border-charcoal-900/40 px-5 py-3 text-sm cursor-not-allowed select-none capitalize"
                   />
                 </div>
               </div>
               <div className="pt-6 border-t border-charcoal-900">
                 <button 
                   type="submit" 
-                  className="rounded-full bg-acid-lime hover:bg-lime-400 px-8 py-2.5 text-xs font-black uppercase tracking-widest text-pitch-black transition-all cursor-pointer"
+                  disabled={isSaving}
+                  className="rounded-full bg-acid-lime hover:bg-lime-400 px-8 py-2.5 text-xs font-black uppercase tracking-widest text-pitch-black transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Changes
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>
           )}
 
-          {activeTab === 'notifications' && (
-            <div className="space-y-6">
-              <h2 className="text-xs font-bold tracking-[0.2em] text-warm-cream uppercase mb-4 font-oldschoolgrotesk">Notification Preferences</h2>
-              <div className="space-y-4">
-                {[
-                  { title: 'Email Notifications', desc: 'Receive email updates for complaint status changes', enabled: true },
-                  { title: 'Push Notifications', desc: 'Get real-time push notifications on your device', enabled: true },
-                  { title: 'Weekly Digest', desc: 'Receive a weekly summary of your complaints', enabled: false },
-                  { title: 'Admin Alerts', desc: 'Notifications for admin actions on your complaints', enabled: true },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-5 rounded-[25px] border border-charcoal-900 bg-charcoal-900/30">
-                    <div>
-                      <p className="font-bold text-xs uppercase tracking-wider text-warm-cream">{item.title}</p>
-                      <p className="text-xs text-warm-cream/60 mt-1">{item.desc}</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" defaultChecked={item.enabled} className="sr-only peer" />
-                      <div className="w-11 h-6 bg-pitch-black border border-charcoal-900 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-warm-cream after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-warm-cream after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-acid-lime" />
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'preferences' && (
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-              <h2 className="text-xs font-bold tracking-[0.2em] text-warm-cream uppercase font-oldschoolgrotesk">Display Preferences</h2>
+          {activeTab === 'security' && (
+            <form className="space-y-6" onSubmit={handlePasswordSubmit}>
               <div>
-                <label className="block text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase mb-3">Theme</label>
-                <div className="flex gap-6">
-                  {['light', 'dark', 'system'].map((theme) => (
-                    <label key={theme} className="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase text-warm-cream/60 hover:text-warm-cream transition-colors">
-                      <input 
-                        type="radio" 
-                        name="theme" 
-                        defaultValue="system" 
-                        defaultChecked={theme === 'system'} 
-                        className="accent-acid-lime" 
+                <h2 className="text-xs font-bold tracking-[0.2em] text-warm-cream uppercase mb-6 font-oldschoolgrotesk">Change Password</h2>
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <label htmlFor="currentPassword" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Current Password</label>
+                    <input
+                      type="password"
+                      id="currentPassword"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
+                    />
+                  </div>
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="newPassword" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">New Password</label>
+                      <input
+                        type="password"
+                        id="newPassword"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
                       />
-                      <span className="capitalize">{theme}</span>
-                    </label>
-                  ))}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="confirmPassword" className="text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Confirm New Password</label>
+                      <input
+                        type="password"
+                        id="confirmPassword"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••"
+                        className="w-full bg-pitch-black text-warm-cream placeholder:text-warm-cream/40 rounded-full border border-charcoal-900 px-5 py-3 text-sm transition-all focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="block text-[10px] font-bold tracking-[0.2em] text-warm-cream/60 uppercase">Language</label>
-                <select className="block w-full max-w-xs bg-pitch-black text-warm-cream rounded-full border border-charcoal-900 px-5 py-3 text-sm focus:outline-none focus:border-acid-lime focus:ring-1 focus:ring-acid-lime cursor-pointer appearance-none">
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                </select>
               </div>
               <div className="pt-6 border-t border-charcoal-900">
                 <button 
                   type="submit" 
-                  className="rounded-full bg-acid-lime hover:bg-lime-400 px-8 py-2.5 text-xs font-black uppercase tracking-widest text-pitch-black transition-all cursor-pointer"
+                  disabled={isSaving}
+                  className="rounded-full bg-acid-lime hover:bg-lime-400 px-8 py-2.5 text-xs font-black uppercase tracking-widest text-pitch-black transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Preferences
+                  {isSaving ? 'Updating...' : 'Update Password'}
                 </button>
               </div>
             </form>

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Complaint from '../models/Complaint.js';
+import { sendStatusUpdateEmail } from '../utils/emailService.js';
 
 function getCreatorId(complaint) {
   const createdBy = complaint?.createdBy || complaint?.student;
@@ -299,6 +300,7 @@ export async function updateComplaintStatus(req, res) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
 
+    const oldStatus = complaint.status;
     complaint.status = normalizedStatus;
     complaint.resolvedAt = normalizedStatus === 'resolved' ? new Date() : null;
     const updatedComplaint = await complaint.save();
@@ -306,6 +308,23 @@ export async function updateComplaintStatus(req, res) {
       { path: 'createdBy', select: 'name email role' },
       { path: 'student', select: 'name email role' },
     ]);
+
+    // Send email notification asynchronously in the background if status changed
+    if (oldStatus !== normalizedStatus) {
+      const recipientUser = updatedComplaint.createdBy || updatedComplaint.student;
+      if (recipientUser && recipientUser.email) {
+        sendStatusUpdateEmail({
+          to: recipientUser.email,
+          studentName: recipientUser.name || 'Student',
+          complaintId: updatedComplaint._id.toString(),
+          complaintTitle: updatedComplaint.title,
+          oldStatus,
+          newStatus: normalizedStatus,
+        }).catch((err) => {
+          console.error('Failed to send status update email in background:', err.message);
+        });
+      }
+    }
 
     return res.status(200).json(formatComplaint(updatedComplaint));
   } catch (error) {
